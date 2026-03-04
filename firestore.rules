@@ -1,0 +1,73 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Rules for User Profiles
+    match /users/{userId} {
+      // Users can read their own profile. Admin can read all.
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Allow creation during sign up
+      allow create: if isOwner(userId) && 
+                      request.resource.data.role == 'user' &&
+                      request.resource.data.points == 0 &&
+                      request.resource.data.streakDays == 0;
+
+      // Allow updates to sensitive fields only with validation (or by admin)
+      // For a truly secure production app, points/streak should be updated via Cloud Functions.
+      // Here we prevent common client-side tampering.
+      allow update: if isOwner(userId) && (
+        // Prevent role change
+        request.resource.data.role == resource.data.role &&
+        // Basic validation for points/streak (preventing massive jumps)
+        (request.resource.data.points >= resource.data.points) &&
+        (request.resource.data.points - resource.data.points <= 1000)
+      ) || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // Rules for Activity Logs
+    match /activities/{activityId} {
+      // Users can list their own activities
+      allow list: if isSignedIn() && request.query.limit <= 100 && 
+                  resource.data.uid == request.auth.uid;
+                  
+      // Users can read their own specific activity
+      allow get: if isSignedIn() && resource.data.uid == request.auth.uid;
+      
+      // Users can only create activities for themselves
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      
+      // Updates and Deletes are generally restricted for history logs, or admin only
+      allow update, delete: if isAdmin();
+    }
+
+    // Rules for Content Diet (Migration target)
+    match /content_diet/{entryId} {
+      allow read, write: if isSignedIn() && 
+          (resource == null || resource.data.uid == request.auth.uid) &&
+          (request.resource == null || request.resource.data.uid == request.auth.uid);
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

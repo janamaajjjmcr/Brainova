@@ -1,0 +1,18 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "cs-brainova",
+          "configurations": {
+            "android": "1:818592913245:android:117d917a9f8b370dacfab4",
+            "ios": "1:818592913245:ios:6e68050fbc6d6a72acfab4",
+            "macos": "1:818592913245:ios:6e68050fbc6d6a72acfab4",
+            "web": "1:818592913245:web:c2a998149a9a4d06acfab4",
+            "windows": "1:818592913245:web:c2a998149a9a4d06acfab4"
+          }
+        }
+      }
+    }
+  }
+}
