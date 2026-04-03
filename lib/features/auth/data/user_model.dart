@@ -92,7 +92,9 @@ class UserModel {
           ? DateTime.tryParse(data['lastDailyResetDate'])
           : null,
       dailyDiet: data['dailyDiet'] != null
-          ? Map<String, double>.from(data['dailyDiet'])
+          ? (data['dailyDiet'] as Map<String, dynamic>).map(
+              (k, v) => MapEntry(k, (v as num).toDouble()),
+            )
           : const {},
     );
   }

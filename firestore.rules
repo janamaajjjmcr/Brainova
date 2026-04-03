@@ -13,61 +13,66 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // إعطاء صلاحيات الأدمن لهذا الإيميل تحديداً
+      return isSignedIn() && (request.auth.token.email.lower().trim() == 'erer40464@gmail.com');
     }
 
-    // Rules for User Profiles
+    // Rules for User Profiles and their subcollections
     match /users/{userId} {
-      // Users can read their own profile. Admin can read all.
-      allow read: if isOwner(userId) || isAdmin();
+      allow read, write: if isOwner(userId) || isAdmin();
       
-      // Allow creation during sign up
-      allow create: if isOwner(userId) && 
-                      request.resource.data.role == 'user' &&
-                      request.resource.data.points == 0 &&
-                      request.resource.data.streakDays == 0;
-
-      // Allow updates to sensitive fields only with validation (or by admin)
-      // For a truly secure production app, points/streak should be updated via Cloud Functions.
-      // Here we prevent common client-side tampering.
-      allow update: if isOwner(userId) && (
-        // Prevent role change
-        request.resource.data.role == resource.data.role &&
-        // Basic validation for points/streak (preventing massive jumps)
-        (request.resource.data.points >= resource.data.points) &&
-        (request.resource.data.points - resource.data.points <= 1000)
-      ) || isAdmin();
-
-      allow delete: if isAdmin();
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
     }
 
     // Rules for Activity Logs
     match /activities/{activityId} {
-      // Users can list their own activities
-      allow list: if isSignedIn() && request.query.limit <= 100 && 
-                  resource.data.uid == request.auth.uid;
-                  
-      // Users can read their own specific activity
-      allow get: if isSignedIn() && resource.data.uid == request.auth.uid;
+      // Allow list if authenticated (required for dashboard and user history)
+      allow list: if isSignedIn();
       
-      // Users can only create activities for themselves
+      // Allow specific access
+      allow get: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-      
-      // Updates and Deletes are generally restricted for history logs, or admin only
       allow update, delete: if isAdmin();
     }
 
-    // Rules for Content Diet (Migration target)
+    // Rules for Content Diet
     match /content_diet/{entryId} {
-      allow read, write: if isSignedIn() && 
-          (resource == null || resource.data.uid == request.auth.uid) &&
-          (request.resource == null || request.resource.data.uid == request.auth.uid);
+      allow read, write: if isSignedIn();
     }
     
-    // Default deny
+    // Publicly readable content collections (Restores Home Screen UI)
+    match /badges/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /challenges/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+      
+      // Allow participants subcollection specifically for owners
+      match /participants/{participantId} {
+        allow read, write: if isOwner(participantId) || isAdmin();
+      }
+    }
+    
+    // Admin specific collections
+    match /admin_logs/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // System stats (Used by admin dashboard)
+    match /daily_system_stats/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Default fallback
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
   }
 }

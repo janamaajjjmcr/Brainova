@@ -243,7 +243,7 @@ class _RewireScreenState extends ConsumerState<RewireScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OutlinedButton(
-                onPressed: () => context.pop(),
+                onPressed: () => context.go('/home'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   side: const BorderSide(color: Colors.white),

@@ -10,7 +10,7 @@ class AdminRepository {
   AdminRepository(this._firestore);
 
   bool isAdminUser(String? email) {
-    return email == 'erer40464@gmail.com';
+    return email?.trim().toLowerCase() == 'erer40464@gmail.com';
   }
 
   Stream<Map<String, dynamic>> watchAnalyticsSummary() {
@@ -121,7 +121,7 @@ class AdminRepository {
 
       for (var doc in challengesSnap.docs) {
         final data = doc.data();
-        final count = (data['participantsCount'] as int?) ?? 0;
+        final count = (data['participantsCount'] as num?)?.toInt() ?? 0;
         if (count > maxParticipants) {
           maxParticipants = count;
           topChallenge = data['title'] as String? ?? 'Untitled';
@@ -131,6 +131,7 @@ class AdminRepository {
       return {
         'contentDiet': dietData,
         'weeklyBrainRot': weeklyTrend,
+        'weeklyDaysList': weeklyDaysList,
         'mostUsedReset': mostUsedReset,
         'topChallenge': topChallenge,
       };
@@ -232,7 +233,7 @@ class AdminRepository {
       final data = doc.data();
       final uid = data['uid'] as String?;
       final typeString = data['type'] as String?;
-      final impactScore = (data['impactScore'] ?? 0) as int;
+      final impactScore = (data['impactScore'] as num?)?.toInt() ?? 0;
 
       if (uid == null) continue;
 

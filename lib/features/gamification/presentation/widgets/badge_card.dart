@@ -244,11 +244,13 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
 
   int _getProfileProgress(UserModel user) {
     int count = 0;
-    if (user.displayName != null && user.displayName!.trim().isNotEmpty)
+    if (user.displayName != null && user.displayName!.trim().isNotEmpty) {
       count++;
+    }
     if (user.photoUrl != null && user.photoUrl!.trim().isNotEmpty) count++;
-    if (user.phoneNumber != null && user.phoneNumber!.trim().isNotEmpty)
+    if (user.phoneNumber != null && user.phoneNumber!.trim().isNotEmpty) {
       count++;
+    }
     if (user.country != null && user.country!.trim().isNotEmpty) count++;
     return count;
   }

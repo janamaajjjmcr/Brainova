@@ -17,8 +17,8 @@ class MainWrapper extends ConsumerWidget {
     if (userProfile?.isRestricted == true) {
       return _RestrictedScreen();
     }
-
-    final bool isAdmin = userProfile?.email == 'erer40464@gmail.com';
+    final bool isAdmin =
+        (userProfile?.email ?? '').trim().toLowerCase() == 'erer40464@gmail.com';
     final int itemCount = isAdmin ? 6 : 5;
 
     final int selectedIndex = _calculateSelectedIndex(context, isAdmin);
@@ -177,15 +177,16 @@ class _NavBarItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primary : Colors.transparent,
                 shape: BoxShape.circle,
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppTheme.primary.withOpacity(0.4),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ]
-                    : null,
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected
+                        ? AppTheme.primary.withOpacity(0.4)
+                        : Colors.transparent,
+                    blurRadius: isSelected ? 10 : 0,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
               child: Icon(
                 icon,

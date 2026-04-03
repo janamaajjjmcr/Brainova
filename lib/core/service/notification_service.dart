@@ -1,7 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:android_intent_plus/android_intent.dart';
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
 
@@ -63,12 +62,12 @@ class NotificationService {
     if (defaultTargetPlatform != TargetPlatform.android) return;
 
     try {
-      final status = await Permission.ignoreBatteryOptimizations.status;
-      if (!status.isGranted) {
-        await Permission.ignoreBatteryOptimizations.request();
-      }
+      const intent = AndroidIntent(
+        action: 'android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+      );
+      await intent.launch();
     } catch (e) {
-      debugPrint('Error requesting battery optimization exemption: $e');
+      debugPrint('Error opening battery optimization settings: $e');
     }
   }
 

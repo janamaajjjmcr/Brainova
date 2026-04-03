@@ -17,8 +17,12 @@ class AnalyticsReportsView extends ConsumerWidget {
 
     return analyticsAsync.when(
       data: (data) {
-        final dietData = Map<String, double>.from(data['contentDiet']);
-        final weeklyTrend = List<double>.from(data['weeklyBrainRot']);
+        final dietData = (data['contentDiet'] as Map).map(
+          (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
+        );
+        final weeklyTrend = (data['weeklyBrainRot'] as List)
+            .map((e) => (e as num).toDouble())
+            .toList();
         final weeklyDays = List<String>.from(
             data['weeklyDays'] ?? ['M', 'T', 'W', 'T', 'F', 'S', 'S']);
 

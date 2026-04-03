@@ -247,8 +247,15 @@ class ActivityRepository {
     // 3. Manual mock activities (for testing)
     allActivities.addAll(_logs.where((log) => log.uid == uid));
 
+    // Remove duplicates by ID (overlap between Firestore and local cache)
+    final Map<String, ActivityLogModel> uniqueMap = {};
+    for (var act in allActivities) {
+      uniqueMap[act.id] = act;
+    }
+    final uniqueActivities = uniqueMap.values.toList();
+
     // Filter by time range (doubly sure)
-    final filtered = allActivities.where((activity) {
+    final filtered = uniqueActivities.where((activity) {
       final isMatch =
           activity.timestamp.isAfter(start) && !activity.timestamp.isAfter(end);
 
@@ -325,7 +332,7 @@ class ActivityRepository {
 
     // 1. Add to Firestore
     try {
-      await _firestore.collection('activities').add(activity.toMap());
+      await _firestore.collection('activities').doc(activity.id).set(activity.toMap());
       debugPrint("Activity logged to Firestore: ${type.name}");
     } catch (e) {
       debugPrint("Firestore log error: $e");

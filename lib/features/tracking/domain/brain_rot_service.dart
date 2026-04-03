@@ -29,10 +29,10 @@ class BrainRotService {
   static const double socialWeight = 2.0;
   static const double entertainmentWeight = 1.5;
   static const double neutralWeight = 1.0;
-  static const double learningWeight =
-      -0.5; // Changed to negative to reduce rot
+  static const double junkweight = 2.2;
+  static const double learningWeight = -0.5; // Changed to negative to reduce rot
 
-  static const double normalizationConstant = 600.0;
+  static const double normalizationConstant = 1200.0;
 
   // ===== TODAY'S SCORE (midnight → now) =====
   Future<int> calculateRollingScore(String uid) async {
@@ -80,7 +80,7 @@ class BrainRotService {
           impact = -10;
           break;
         case ActivityType.junk:
-          impact = minutes * 2.2;
+          impact = minutes * junkweight;
           break;
       }
 
@@ -92,7 +92,7 @@ class BrainRotService {
     }
 
     double rawImpact = positiveImpact + negativeImpact;
-    double scoreValue = (rawImpact / normalizationConstant) * 100;
+    double scoreValue = (rawImpact / (rawImpact + normalizationConstant)) * 100;
 
     debugPrint("DEBUG: BrainRot Calculation Breakdown:");
     debugPrint("  - Positive (Usage): +${positiveImpact.toStringAsFixed(2)}");

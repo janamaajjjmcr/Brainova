@@ -90,7 +90,10 @@ class _UserCard extends ConsumerWidget {
                 radius: 24,
                 backgroundColor: AppTheme.primary.withOpacity(0.1),
                 child: Text(
-                  (user['displayName'] ?? 'U')[0].toUpperCase(),
+                  ((user['displayName'] ?? '').toString().isNotEmpty
+                          ? user['displayName'].toString()
+                          : 'U')[0]
+                      .toUpperCase(),
                   style: const TextStyle(
                       color: AppTheme.primary, fontWeight: FontWeight.bold),
                 ),

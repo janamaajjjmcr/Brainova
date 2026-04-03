@@ -74,33 +74,35 @@ class _AdminMiniNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-              child: _NavIcon(
-                  index: 0, icon: LucideIcons.layoutDashboard, label: 'Home')),
-          Expanded(
-              child: _NavIcon(
-                  index: 1, icon: LucideIcons.trophy, label: 'Challenges')),
-          Expanded(
-              child:
-                  _NavIcon(index: 2, icon: LucideIcons.users, label: 'Users')),
-          Expanded(
-              child: _NavIcon(
-                  index: 3, icon: LucideIcons.barChart, label: 'Stats')),
-          Expanded(
-              child:
-                  _NavIcon(index: 4, icon: LucideIcons.award, label: 'Badges')),
-          Expanded(
-              child: _NavIcon(index: 5, icon: LucideIcons.info, label: 'Info')),
-        ],
+    return SafeArea(
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+                child: _NavIcon(
+                    index: 0, icon: LucideIcons.layoutDashboard, label: 'Home')),
+            Expanded(
+                child: _NavIcon(
+                    index: 1, icon: LucideIcons.trophy, label: 'Challenges')),
+            Expanded(
+                child:
+                    _NavIcon(index: 2, icon: LucideIcons.users, label: 'Users')),
+            Expanded(
+                child: _NavIcon(
+                    index: 3, icon: LucideIcons.barChart, label: 'Stats')),
+            Expanded(
+                child:
+                    _NavIcon(index: 4, icon: LucideIcons.award, label: 'Badges')),
+            Expanded(
+                child: _NavIcon(index: 5, icon: LucideIcons.info, label: 'Info')),
+          ],
+        ),
       ),
     );
   }
@@ -121,6 +123,7 @@ class _NavIcon extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () => ref.read(adminViewProvider.notifier).state = index,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -130,12 +133,15 @@ class _NavIcon extends ConsumerWidget {
             size: 24,
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
         ],

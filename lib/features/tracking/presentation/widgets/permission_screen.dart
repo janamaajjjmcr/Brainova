@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:brainova/features/tracking/data/activity_repository.dart';
 import 'package:brainova/features/auth/data/auth_providers.dart';
 
@@ -39,14 +40,17 @@ class _PermissionCheckerScreenState
 
     if (!hasPermission) {
       setState(() => _isChecking = false);
+    } else {
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (mounted) {
+        _navigateToNext(firebaseUser != null);
+      }
     }
-    // If hasPermission, the ref.listen in build will handle navigation
-    // once auth state is resolved.
   }
 
-  void _navigateToNext(UserModel? user) {
+  void _navigateToNext(bool isLoggedIn) {
     if (!mounted) return;
-    if (user != null) {
+    if (isLoggedIn) {
       context.go('/home');
     } else {
       context.go('/intro');
@@ -75,7 +79,7 @@ class _PermissionCheckerScreenState
             !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
         if (!isAndroid) {
-          _navigateToNext(user);
+          _navigateToNext(user != null);
           return;
         }
 
@@ -83,7 +87,7 @@ class _PermissionCheckerScreenState
         final hasPermission = await repo.checkRealDataAvailability();
 
         if (hasPermission && mounted) {
-          _navigateToNext(user);
+          _navigateToNext(user != null);
         }
       });
     });
