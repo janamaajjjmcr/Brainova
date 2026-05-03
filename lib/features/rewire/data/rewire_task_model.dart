@@ -4,9 +4,9 @@ class RewireTask {
   final String id;
   final String title;
   final RewireType type;
-  final String content; // Question or Prompt
-  final List<String>? options; // For trivia
-  final String? correctAnswer; // For trivia
+  final String content;
+  final List<String>? options;
+  final String? correctAnswer;
   final int pointsReward;
 
   RewireTask({

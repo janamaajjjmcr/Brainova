@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class IntroSloganScreen extends StatefulWidget {
   const IntroSloganScreen({super.key});
@@ -27,8 +28,6 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
     super.initState();
 
     HapticFeedback.lightImpact();
-
-    // SLOGAN CONTROLLER
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -47,8 +46,6 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
     );
 
     _controller.forward();
-
-    // BUTTONS CONTROLLER
     _buttonsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -68,8 +65,6 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
         curve: Curves.easeOut,
       ),
     );
-
-    // 🔥 DELAY BEFORE BUTTONS APPEAR
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         _buttonsController.forward();
@@ -89,7 +84,6 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // BACKGROUND
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -98,9 +92,7 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
               ),
             ),
           ),
-
-          // DARK OVERLAY
-          Container(color: Colors.black.withOpacity(0.6)),
+          Container(color: Colors.black.withValues(alpha: 0.6)),
 
           SafeArea(
             child: Padding(
@@ -108,16 +100,14 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
               child: Column(
                 children: [
                   const Spacer(flex: 2),
-
-                  // SLOGAN
                   FadeTransition(
                     opacity: _sloganFade,
                     child: ScaleTransition(
                       scale: _sloganScale,
-                      child: const Text(
-                        'Turn brain rot\ninto brain growth',
+                      child: Text(
+                        AppLocalizations.of(context).introSlogan,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'MontserratAlt',
                           fontSize: 36,
                           height: 1.25,
@@ -130,15 +120,12 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
                   ),
 
                   const Spacer(),
-
-                  // BUTTONS (appear after 3 sec delay + animation)
                   FadeTransition(
                     opacity: _buttonsFade,
                     child: SlideTransition(
                       position: _buttonsSlide,
                       child: Column(
                         children: [
-                          // SIGN UP
                           GestureDetector(
                             onTapDown: (_) =>
                                 setState(() => _signupPressed = true),
@@ -164,10 +151,10 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
                                   ),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Text(
-                                    'Sign Up',
-                                    style: TextStyle(
+                                    AppLocalizations.of(context).introGetStarted,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -179,8 +166,6 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
                           ),
 
                           const SizedBox(height: 16),
-
-                          // LOGIN
                           GestureDetector(
                             onTapDown: (_) =>
                                 setState(() => _loginPressed = true),
@@ -201,12 +186,12 @@ class _IntroSloganScreenState extends State<IntroSloganScreen>
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                       color: Colors.white70, width: 1.5),
-                                  color: Colors.white.withOpacity(0.08),
+                                  color: Colors.white.withValues(alpha: 0.08),
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Text(
-                                    'Log In',
-                                    style: TextStyle(
+                                    AppLocalizations.of(context).loginButton,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,

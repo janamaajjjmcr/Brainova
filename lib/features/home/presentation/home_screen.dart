@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../tracking/data/activity_repository.dart';
 import '../../tracking/presentation/widgets/brain_rot_meter.dart';
@@ -28,7 +29,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Ensure real data availability is checked on home screen load
     Future.microtask(() async {
       final hasPermission = await ref
           .read(activityRepositoryProvider)
@@ -48,7 +48,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Refresh brain rot level when coming back to the app
       debugPrint("DEBUG: App resumed, refreshing Brain Rot score...");
       ref.invalidate(brainRotScoreProvider);
     }
@@ -66,12 +65,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final authStateAsync = ref.watch(authStateProvider);
     final brainRotScoreAsync = ref.watch(brainRotScoreProvider);
     final streakUser = ref.watch(streakControllerProvider);
     final currentStreak = streakUser?.currentStreak ?? 0;
-
-    // Ensure BadgeService is initialized and listening
     ref.watch(badgeServiceProvider);
 
     return Scaffold(
@@ -87,7 +85,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -117,7 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user?.displayName ?? 'User',
+                                    user?.displayName ?? l10n.commonUser,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -149,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '$currentStreak Days',
+                                  '$currentStreak ${l10n.homeDaysLabel}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -165,8 +162,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         ],
                       ),
                       const SizedBox(height: 32),
-
-                      // Brain Rot Meter
                       brainRotScoreAsync.when(
                         data: (score) => BrainRotMeterWidget(score: score)
                             .animate()
@@ -174,21 +169,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             .scale(begin: const Offset(0.9, 0.9)),
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),
-                        error: (e, st) => Text('Error: $e'),
+                        error: (e, st) => Text(l10n.commonError(e.toString())),
                       ),
 
                       const SizedBox(height: 24),
-                      // Challenges Section
                       const DynamicChallengesSection(),
 
                       const SizedBox(height: 32),
                       Text(
-                        'Quick Actions',
+                        l10n.homeQuickActions,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),
-
-                      // Quick Actions Grid
                       GridView.count(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -198,25 +190,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         childAspectRatio: 1.4,
                         children: [
                           _QuickActionCard(
-                            title: 'Mind Reset',
+                            title: l10n.homeMindReset,
                             icon: LucideIcons.brainCircuit,
                             gradient: AppTheme.healingGradient,
                             onTap: () => context.push('/mind-reset'),
                           ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2),
                           _QuickActionCard(
-                            title: 'Rewire Mode',
+                            title: l10n.homeRewireMode,
                             icon: LucideIcons.compass,
                             gradient: AppTheme.primaryGradient,
                             onTap: () => context.push('/rewire'),
                           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
                           _QuickActionCard(
-                            title: 'Reality Check',
+                            title: l10n.homeRealityCheck,
                             icon: LucideIcons.activity,
                             gradient: AppTheme.focusGradient,
                             onTap: () => context.push('/reality-check'),
                           ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2),
                           _QuickActionCard(
-                            title: 'Content Diet',
+                            title: l10n.homeContentDiet,
                             icon: LucideIcons.layoutDashboard,
                             gradient: AppTheme.energyGradient,
                             onTap: () => context.push('/content-diet'),
@@ -225,16 +217,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       ),
 
                       const SizedBox(height: 32),
-                      // Dynamic Achievements Section
                       const AchievementsSection(),
                     ],
                   ),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e')),
+                error: (e, st) => Center(child: Text(l10n.commonError(e.toString()))),
               ),
             ),
-            // Badge Unlock Celebration Overlay
             const BadgeUnlockCelebration(),
           ],
         ),
@@ -267,7 +257,7 @@ class _QuickActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: (gradient as LinearGradient).colors.first.withOpacity(0.3),
+              color: (gradient as LinearGradient).colors.first.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -279,7 +269,7 @@ class _QuickActionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 24, color: Colors.white),

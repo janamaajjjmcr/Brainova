@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:brainova/l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
@@ -34,23 +36,24 @@ class AnalyticsReportsView extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'In-Depth Analytics',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary),
+                Text(
+                  AppLocalizations.of(context).adminAnalyticsTitle,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 _ReportCard(
-                  title: 'Content Diet Distribution',
-                  subtitle: 'User engagement by category (Today)',
+                  title: AppLocalizations.of(context).adminContentDietTitle,
+                  subtitle: AppLocalizations.of(context).adminContentDietSubtitle,
                   chart: _PieChart(data: dietData),
                 ),
                 const SizedBox(height: 24),
                 _ReportCard(
-                  title: 'Brain Rot Distribution',
-                  subtitle: 'Weekly average per day',
+                  title: AppLocalizations.of(context).adminBrainRotDistribution,
+                  subtitle: AppLocalizations.of(context).adminBrainRotWeeklySubtitle,
                   chart: Container(
                     height: 200,
                     width: double.infinity,
@@ -65,14 +68,14 @@ class AnalyticsReportsView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _SimpleMetricRow(
-                  label: 'Most Used Mind Reset:',
-                  value: data['mostUsedReset'] ?? 'None',
+                  label: AppLocalizations.of(context).adminMostUsedMindReset,
+                  value: data['mostUsedReset'] ?? AppLocalizations.of(context).commonNone,
                   icon: Icons.auto_awesome,
                 ),
                 const SizedBox(height: 12),
                 _SimpleMetricRow(
-                  label: 'Top Active Challenge:',
-                  value: data['topChallenge'] ?? 'None',
+                  label: AppLocalizations.of(context).adminTopActiveChallenge,
+                  value: data['topChallenge'] ?? AppLocalizations.of(context).commonNone,
                   icon: Icons.bolt,
                 ),
               ],
@@ -101,7 +104,7 @@ class _ReportCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +222,7 @@ class _LegendItem extends StatelessWidget {
               height: 10,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 8),
-          Text(label,
+          Text(_getLocalizedLegendLabel(label, AppLocalizations.of(context)),
               style:
                   const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
         ],
@@ -286,7 +289,7 @@ class _UsageBarPainter extends CustomPainter {
     final spacing = size.width / data.length * 0.4;
 
     final paint = Paint()
-      ..color = AppTheme.primary.withOpacity(0.3)
+      ..color = AppTheme.primary.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     final highlightPaint = Paint()
@@ -306,8 +309,6 @@ class _UsageBarPainter extends CustomPainter {
             topRight: const Radius.circular(8),
           ),
           paint);
-
-      // Draw top highlight line
       canvas.drawLine(
         Offset(x, size.height - 25 - h + 1),
         Offset(x + barWidth, size.height - 25 - h + 1),
@@ -328,4 +329,19 @@ class _UsageBarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+String _getLocalizedLegendLabel(String label, AppLocalizations l10n) {
+  switch (label) {
+    case 'Social':
+      return l10n.contentDietSocial;
+    case 'Learning':
+      return l10n.contentDietLearning;
+    case 'Entertainment':
+      return l10n.contentDietEntertainment;
+    case 'Junk':
+      return l10n.contentDietJunk;
+    default:
+      return label;
+  }
 }

@@ -11,7 +11,6 @@ class SmartNotificationService {
 
   SmartNotificationService(this._notificationService);
 
-  /// Sends a warning when the user spends too much time on distracting apps.
   Future<void> sendBrainRotWarning(int score) async {
     String title = "⚠️ Brain Rot Alert";
     String body =
@@ -29,7 +28,6 @@ class SmartNotificationService {
     );
   }
 
-  /// Sends positive reinforcement when the user improves their behavior.
   Future<void> sendPositiveReinforcement(
       int previousScore, int currentScore) async {
     if (currentScore < previousScore) {
@@ -40,7 +38,6 @@ class SmartNotificationService {
     }
   }
 
-  /// Sends a notification when a productivity streak is achieved.
   Future<void> sendStreakNotification(int streakDays) async {
     await _notificationService.showNotification(
       title: "🔥 Productivity Streak!",
@@ -48,7 +45,6 @@ class SmartNotificationService {
     );
   }
 
-  /// Sends a general motivational notification.
   Future<void> sendMotivationalFeedback() async {
     await _notificationService.showNotification(
       title: "🚀 Stay Focused",
@@ -56,7 +52,6 @@ class SmartNotificationService {
     );
   }
 
-  /// Sends a warning about specific app usage.
   Future<void> sendAppUsageWarning(String appName) async {
     await _notificationService.showNotification(
       title: "📱 App Limit",

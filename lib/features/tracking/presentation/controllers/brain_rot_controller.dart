@@ -44,17 +44,12 @@ class BrainRotController extends StateNotifier<int> {
   void _incrementBasedOnTime() {
     if (_uid == null) return;
 
-    // Logic: Increase "Brain Rot" by 1% every 5 minutes of low-value digital activity.
-    // This is a simplified logic. In a real app, we'd detect foreground app or activity type.
-    // For now, let's assume "Idle/Undefined" activity increases it slowly.
-
     final newScore = (state + 1).clamp(0, 100);
     if (newScore != state) {
       state = newScore;
       _syncToFirestore();
 
       if (state >= 90) {
-        // Trigger intervention logic (handled by UI listening to this controller)
       }
     }
   }
@@ -64,7 +59,7 @@ class BrainRotController extends StateNotifier<int> {
     if (_uid == null) return;
 
     final activity = ActivityLogModel(
-      id: '', // Firestore will generate
+      id: '',
       uid: _uid,
       type: type,
       timestamp: DateTime.now(),

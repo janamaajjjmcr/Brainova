@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
@@ -30,7 +31,7 @@ class _UserManagementViewState extends ConsumerState<UserManagementView> {
           child: TextField(
             onChanged: (val) => setState(() => searchQuery = val),
             decoration: InputDecoration(
-              hintText: 'Search by Email or Name...',
+              hintText: AppLocalizations.of(context).adminSearchUsers,
               prefixIcon: const Icon(LucideIcons.search),
               fillColor: AppTheme.surface,
               filled: true,
@@ -80,7 +81,7 @@ class _UserCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -88,7 +89,7 @@ class _UserCard extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: AppTheme.primary.withOpacity(0.1),
+                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                 child: Text(
                   ((user['displayName'] ?? '').toString().isNotEmpty
                           ? user['displayName'].toString()
@@ -103,9 +104,9 @@ class _UserCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user['displayName'] ?? 'Unknown User',
+                    Text(user['displayName'] ?? AppLocalizations.of(context).adminUnknownUser,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(user['email'] ?? 'No Email',
+                    Text(user['email'] ?? AppLocalizations.of(context).adminNoEmail,
                         style: const TextStyle(
                             fontSize: 12, color: AppTheme.textSecondary)),
                   ],
@@ -128,17 +129,17 @@ class _UserCard extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _UserStat(
-                  label: 'Streak',
+                  label: AppLocalizations.of(context).adminUserStreak,
                   value: '${user['currentStreak'] ?? 0}d',
                   icon: LucideIcons.flame,
                   color: AppTheme.warning),
               _UserStat(
-                  label: 'Activity',
+                  label: AppLocalizations.of(context).adminUserActivity,
                   value: '${user['calculatedDailyActivity'] ?? 0}',
                   icon: LucideIcons.activity,
                   color: AppTheme.info),
               _UserStat(
-                  label: 'Points',
+                  label: AppLocalizations.of(context).adminUserPoints,
                   value: '${user['calculatedDailyPoints'] ?? 0}',
                   icon: LucideIcons.gem,
                   color: AppTheme.success),

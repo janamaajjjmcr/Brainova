@@ -15,10 +15,10 @@ class BadgeModel {
   final String id;
   final String title;
   final String description;
-  final String iconName; // Name of the icon to be used with a helper
+  final String iconName;
   final BadgeConditionType conditionType;
   final int conditionValue;
-  final String unitLabel; // e.g., 'days', 'sessions', 'tasks'
+  final String unitLabel;
   final bool isUnlocked;
   final DateTime? unlockedAt;
 

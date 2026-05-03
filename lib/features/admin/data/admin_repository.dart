@@ -41,14 +41,10 @@ class AdminRepository {
               dietData['Neutral']! + (userDiet['neutral'] ?? 0.0);
         }
       }
-
-      // Convert seconds to a relative value for the pie chart
       final totalDuration = dietData.values.fold(0.0, (a, b) => a + b);
       if (totalDuration == 0) {
-        dietData['Other'] = 1.0; // Avoid empty chart
+        dietData['Other'] = 1.0;
       }
-
-      // 2. Brain Rot Distribution (Weekly Trend)
       double avgToday = 0;
       if (snap.docs.isNotEmpty) {
         final sum = snap.docs.fold<double>(
@@ -57,16 +53,12 @@ class AdminRepository {
         );
         avgToday = sum / snap.docs.length;
       }
-
-      // Save today's average to daily_system_stats
       final todayStr =
           "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
       await _firestore.collection('daily_system_stats').doc(todayStr).set({
         'avgBrainRot': avgToday,
         'timestamp': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-
-      // Fetch last 7 days from daily_system_stats
       final weeklyTrend = List<double>.filled(7, 0.0);
       final weeklyDaysList = <String>[];
       final daysInitials = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -85,13 +77,8 @@ class AdminRepository {
           weeklyTrend[6 - i] =
               (docSnap.data()!['avgBrainRot'] as num?)?.toDouble() ?? 0.0;
         }
-
-        // Add correct day initial
         weeklyDaysList.add(daysInitials[date.weekday - 1]);
       }
-
-      // 3. Most Used Mind Reset
-      // We look at all time activities for this one as requested by the "stats" context
       final allResetsSnap = await _firestore
           .collection('activities')
           .where('type', isEqualTo: 'mindReset')
@@ -113,8 +100,6 @@ class AdminRepository {
       });
       final mostUsedReset =
           maxResetCount > 0 ? '$topReset ($maxResetCount times)' : 'None';
-
-      // 4. Top Active Challenge
       final challengesSnap = await _firestore.collection('challenges').get();
       String topChallenge = 'None';
       int maxParticipants = -1;
@@ -188,8 +173,6 @@ class AdminRepository {
   Future<Map<String, dynamic>> getSystemMetrics() async {
     return watchSystemMetrics().first;
   }
-
-  // Challenge Management
   Stream<List<Map<String, dynamic>>> watchChallenges() {
     return _firestore.collection('challenges').snapshots().map(
           (snap) =>
@@ -211,22 +194,16 @@ class AdminRepository {
   Future<void> deleteChallenge(String id) async {
     await _firestore.collection('challenges').doc(id).delete();
   }
-
-  // User Management
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     final now = DateTime.now();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
     final usersSnap = await _firestore.collection('users').get();
-
-    // Fetch all activities from today across all users
     final activitiesSnap = await _firestore
         .collection('activities')
         .where('timestamp',
             isGreaterThanOrEqualTo: Timestamp.fromDate(startOfToday))
         .get();
-
-    // Map to store activity counts by UID
     final statsMap = <String, Map<String, int>>{};
 
     for (var doc in activitiesSnap.docs) {
@@ -238,11 +215,8 @@ class AdminRepository {
       if (uid == null) continue;
 
       statsMap.putIfAbsent(uid, () => {'activity': 0, 'points': 0});
-
-      // We count mindReset and rewire as the requested "activity"
       if (typeString == 'mindReset' || typeString == 'rewire') {
         statsMap[uid]!['activity'] = statsMap[uid]!['activity']! + 1;
-        // Points for today is usually the inverse of negative impact for these types
         if (impactScore < 0) {
           statsMap[uid]!['points'] =
               statsMap[uid]!['points']! + impactScore.abs();
@@ -263,15 +237,13 @@ class AdminRepository {
       };
     }).toList();
   }
-
-  // Badge Management
   Stream<List<Map<String, dynamic>>> watchBadges() {
     return _firestore.collection('badges').snapshots().map(
           (snap) => snap.docs.map((doc) {
             final data = doc.data();
             return {
               ...data,
-              'id': doc.id, // Explicitly use document ID
+              'id': doc.id,
             };
           }).toList(),
         );
@@ -292,8 +264,6 @@ class AdminRepository {
   Future<void> deleteBadge(String id) async {
     await _firestore.collection('badges').doc(id).delete();
   }
-
-  // Activity Logs
   Stream<List<Map<String, dynamic>>> watchLogs() {
     return _firestore
         .collection('admin_logs')
@@ -302,8 +272,6 @@ class AdminRepository {
         .map((snap) =>
             snap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList());
   }
-
-  // Security Actions
   Future<void> toggleUserRestriction(String uid, bool restrict) async {
     await _firestore.collection('users').doc(uid).update({
       'isRestricted': restrict,
@@ -312,8 +280,6 @@ class AdminRepository {
   }
 
   Future<void> deleteUserAccount(String uid) async {
-    // Note: This only deletes the Firestore doc.
-    // Real account deletion requires Firebase Admin SDK or Cloud Functions.
     await _firestore.collection('users').doc(uid).delete();
   }
 }

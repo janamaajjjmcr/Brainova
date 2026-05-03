@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class AppSettingsView extends StatelessWidget {
   const AppSettingsView({super.key});
@@ -13,11 +14,11 @@ class AppSettingsView extends StatelessWidget {
       length: 2,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             indicatorColor: AppTheme.primary,
             tabs: [
-              Tab(text: 'Info Center'),
-              Tab(text: 'Activity Logs'),
+              Tab(text: AppLocalizations.of(context).adminInfoCenter),
+              Tab(text: AppLocalizations.of(context).adminActivityLogs),
             ],
           ),
           Expanded(
@@ -37,109 +38,109 @@ class AppSettingsView extends StatelessWidget {
 class _SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      padding: EdgeInsets.all(24),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionHeader(
-              title: 'Brain Rot Thresholds', icon: LucideIcons.activity),
+              title: AppLocalizations.of(context).adminBrainRotThresholds, icon: LucideIcons.activity),
           _ThresholdInfoCard(
-            label: 'Healthy Zone',
+            label: AppLocalizations.of(context).adminHealthyZone,
             range: '0–40',
             description:
-                'Balanced digital usage. Focus on productivity and real-world interactions.',
+                AppLocalizations.of(context).adminHealthyZoneDesc,
             color: AppTheme.success,
           ),
           _ThresholdInfoCard(
-            label: 'Caution Zone',
+            label: AppLocalizations.of(context).adminCautionZone,
             range: '41–70',
             description:
-                'Increasing passive consumption. Consider a short Mind Reset.',
+                AppLocalizations.of(context).adminCautionZoneDesc,
             color: AppTheme.warning,
           ),
           _ThresholdInfoCard(
-            label: 'Danger Zone',
+            label: AppLocalizations.of(context).adminDangerZone,
             range: '71–100',
             description:
-                'High passive consumption detected. Immediate action recommended.',
+                AppLocalizations.of(context).adminDangerZoneDesc,
             color: AppTheme.error,
           ),
-          SizedBox(height: 32),
-          _SectionHeader(title: 'Points System', icon: LucideIcons.coins),
+          const SizedBox(height: 32),
+          _SectionHeader(title: AppLocalizations.of(context).adminPointsSystem, icon: LucideIcons.coins),
           _InfoListTile(
-            title: 'Rewire Mode Reward',
+            title: AppLocalizations.of(context).adminRewireReward,
             value: '5 pts',
-            subtitle: 'Complete short exercises.',
+            subtitle: AppLocalizations.of(context).adminRewireRewardSubtitle,
             icon: LucideIcons.checkCircle2,
           ),
           _InfoListTile(
-            title: 'Mind Reset Reward',
+            title: AppLocalizations.of(context).adminMindResetReward,
             value: '15 pts',
-            subtitle: 'Complete physical or mental rejuvenation tasks.',
+            subtitle: AppLocalizations.of(context).adminMindResetRewardSubtitle,
             icon: LucideIcons.refreshCw,
           ),
           _InfoListTile(
-            title: 'Challenge Completion',
-            value: 'Fiexible pts / Badge',
-            subtitle: 'Finish community challenges for maximum rewards.',
+            title: AppLocalizations.of(context).adminChallengeReward,
+            value: AppLocalizations.of(context).adminChallengeRewardSubtitle,
+            subtitle: AppLocalizations.of(context).adminChallengeRewardSubtitle,
             icon: LucideIcons.trophy,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Text(
-              'Points can be used to unlock exclusive achievements and climb the community rankings.',
-              style: TextStyle(
+              AppLocalizations.of(context).adminPointsUsageFooter,
+              style: const TextStyle(
                   fontSize: 12,
                   color: AppTheme.textSecondary,
                   fontStyle: FontStyle.italic),
             ),
           ),
-          SizedBox(height: 32),
-          _SectionHeader(title: 'System Features', icon: LucideIcons.layers),
+          const SizedBox(height: 32),
+          _SectionHeader(title: AppLocalizations.of(context).adminSystemFeatures, icon: LucideIcons.layers),
           _FeatureInfoCard(
-            title: 'Brain Rot Meter',
+            title: AppLocalizations.of(context).adminBrainRotMeterTitle,
             description:
-                'Tracks daily digital consumption and calculates your real-time Brain Rot Score.',
+                AppLocalizations.of(context).adminBrainRotMeterDesc,
             icon: LucideIcons.gauge,
           ),
           _FeatureInfoCard(
-            title: 'Community Challenges',
+            title: AppLocalizations.of(context).adminCommunityChallengesTitle,
             description:
-                'Participate in global events to reduce collective passive screen time.',
+                AppLocalizations.of(context).adminCommunityChallengesDesc,
             icon: LucideIcons.users2,
           ),
           _FeatureInfoCard(
-            title: 'Smart Notifications',
+            title: AppLocalizations.of(context).adminSmartNotificationsTitle,
             description:
-                'Motivational alerts that encourage healthier digital habits and timely resets.',
+                AppLocalizations.of(context).adminSmartNotificationsDesc,
             icon: LucideIcons.bellRing,
           ),
           _FeatureInfoCard(
-            title: 'Real-time Analytics',
+            title: AppLocalizations.of(context).adminRealtimeAnalyticsTitle,
             description:
-                'Provides a summary of the user’s digital activity based on recorded app usage.',
+                AppLocalizations.of(context).adminRealtimeAnalyticsDesc,
             icon: LucideIcons.barChart3,
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _SectionHeader(
-              title: 'How Brainova Works', icon: LucideIcons.helpCircle),
+              title: AppLocalizations.of(context).adminHowBrainovaWorks, icon: LucideIcons.helpCircle),
           _StepFlowItem(
-              step: '1', text: 'Track daily app usage automatically.'),
+              step: '1', text: AppLocalizations.of(context).adminStep1),
           _StepFlowItem(
               step: '2',
-              text: 'Calculate Brain Rot Score patterns based on activities.'),
+              text: AppLocalizations.of(context).adminStep2),
           _StepFlowItem(
-              step: '3', text: 'Suggest Mind Reset & Rewire Mode activities.'),
+              step: '3', text: AppLocalizations.of(context).adminStep3),
           _StepFlowItem(
-              step: '4', text: 'Reward healthy habits with points and badges.'),
-          SizedBox(height: 32),
-          _SectionHeader(title: 'App Details', icon: LucideIcons.info),
-          _DetailRow(label: 'App Version', value: '1.0.0'),
-          _DetailRow(label: 'Developer', value: 'Brainova Team'),
+              step: '4', text: AppLocalizations.of(context).adminStep4),
+          const SizedBox(height: 32),
+          _SectionHeader(title: AppLocalizations.of(context).adminAppDetails, icon: LucideIcons.info),
+          _DetailRow(label: AppLocalizations.of(context).adminAppVersion, value: '1.0.0'),
+          _DetailRow(label: AppLocalizations.of(context).adminDeveloper, value: 'Brainova Team'),
           _DetailRow(
-              label: 'System Status',
-              value: 'Operational',
+              label: AppLocalizations.of(context).adminSystemStatus,
+              value: AppLocalizations.of(context).adminOperational,
               color: AppTheme.success),
         ],
       ),
@@ -178,7 +179,7 @@ class _LogsTab extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
+                    color: AppTheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle),
                 child: const Icon(LucideIcons.scrollText,
                     color: AppTheme.primary, size: 18),
@@ -238,7 +239,7 @@ class _ThresholdInfoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +256,7 @@ class _ThresholdInfoCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(range,
@@ -296,7 +297,7 @@ class _InfoListTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withOpacity(0.1),
+                color: AppTheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, size: 20, color: AppTheme.primary),
@@ -343,7 +344,7 @@ class _FeatureInfoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +390,7 @@ class _StepFlowItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withOpacity(0.3),
+                    color: AppTheme.primary.withValues(alpha: 0.3),
                     spreadRadius: 2,
                     blurRadius: 5,
                   )

@@ -39,8 +39,6 @@ class GamificationController {
 
     List<String> newBadges = List.from(user.badges);
     bool updated = false;
-
-    // Simplified badge logic for MVP
     if (user.points >= 1000 && !newBadges.contains('focus_master')) {
       newBadges.add('focus_master');
       updated = true;

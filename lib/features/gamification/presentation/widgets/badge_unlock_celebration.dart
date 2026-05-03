@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/badge_service.dart';
 
@@ -21,6 +22,7 @@ class _BadgeUnlockCelebrationState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final lastBadge = ref.watch(lastUnlockedBadgeProvider);
 
     if (lastBadge != null) {
@@ -40,7 +42,6 @@ class _BadgeUnlockCelebrationState
 
     return Stack(
       children: [
-        // Full screen particles/confetti
         Positioned.fill(
           child: CustomPaint(
             painter: ConfettiPainter(),
@@ -48,13 +49,12 @@ class _BadgeUnlockCelebrationState
         ).animate().fadeIn(),
 
         Material(
-          color: Colors.black.withOpacity(0.85),
+          color: Colors.black.withValues(alpha: 0.85),
           child: Center(
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Burst effect background
                   Stack(
                     alignment: Alignment.center,
                     children: [
@@ -65,7 +65,7 @@ class _BadgeUnlockCelebrationState
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withOpacity(0.4),
+                              color: AppTheme.primary.withValues(alpha: 0.4),
                               blurRadius: 100,
                               spreadRadius: 20,
                             ),
@@ -78,8 +78,6 @@ class _BadgeUnlockCelebrationState
                               end: const Offset(1.2, 1.2),
                               duration: 2.seconds)
                           .blurXY(begin: 20, end: 40),
-
-                      // The Badge Icon
                       Container(
                         padding: const EdgeInsets.all(40),
                         decoration: BoxDecoration(
@@ -91,7 +89,7 @@ class _BadgeUnlockCelebrationState
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withOpacity(0.5),
+                              color: AppTheme.primary.withValues(alpha: 0.5),
                               blurRadius: 30,
                               spreadRadius: 5,
                             ),
@@ -113,11 +111,9 @@ class _BadgeUnlockCelebrationState
                   ),
 
                   const SizedBox(height: 48),
-
-                  // "NEW ACHIEVEMENT" Text with Sparkle
-                  const Text(
-                    'NEW ACHIEVEMENT',
-                    style: TextStyle(
+                  Text(
+                    l10n.badgeCelebrationNewAchievement,
+                    style: const TextStyle(
                       color: AppTheme.primary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -126,10 +122,8 @@ class _BadgeUnlockCelebrationState
                   ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2),
 
                   const SizedBox(height: 16),
-
-                  // Badge Title with Shimmer
                   Text(
-                    lastBadge.title,
+                    _getLocalizedTitle(lastBadge.id, l10n),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -144,14 +138,12 @@ class _BadgeUnlockCelebrationState
                       .shimmer(duration: 2.seconds),
 
                   const SizedBox(height: 16),
-
-                  // Description
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
-                      lastBadge.description,
+                      _getLocalizedDesc(lastBadge.id, l10n),
                       style: TextStyle(
-                        color: AppTheme.textSecondary.withOpacity(0.8),
+                        color: AppTheme.textSecondary.withValues(alpha: 0.8),
                         fontSize: 18,
                         height: 1.5,
                       ),
@@ -160,8 +152,6 @@ class _BadgeUnlockCelebrationState
                   ).animate().fadeIn(delay: 800.ms),
 
                   const SizedBox(height: 60),
-
-                  // Action Button
                   ElevatedButton(
                     onPressed: () {
                       ref.read(badgeServiceProvider).dismissCelebration();
@@ -175,11 +165,11 @@ class _BadgeUnlockCelebrationState
                         borderRadius: BorderRadius.circular(24),
                       ),
                       elevation: 10,
-                      shadowColor: AppTheme.primary.withOpacity(0.4),
+                      shadowColor: AppTheme.primary.withValues(alpha: 0.4),
                     ),
-                    child: const Text(
-                      'AWESOME!',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.badgeCelebrationAwesome,
+                      style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1),
@@ -193,6 +183,47 @@ class _BadgeUnlockCelebrationState
       ],
     );
   }
+  String _getLocalizedTitle(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'welcome':
+        return l10n.badgeTitleWelcome;
+      case 'streak_3':
+        return l10n.badgeTitleStreak3;
+      case 'streak_7':
+        return l10n.badgeTitleStreak7;
+      case 'mind_reset_5':
+        return l10n.badgeTitleMindReset5;
+      case 'streak_30':
+        return l10n.badgeTitleStreak30;
+      case 'profile_complete':
+        return l10n.badgeTitleProfileComplete;
+      case 'content_diet_10':
+        return l10n.badgeTitleContentDiet10;
+      default:
+        return "";
+    }
+  }
+
+  String _getLocalizedDesc(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'welcome':
+        return l10n.badgeDescWelcome;
+      case 'streak_3':
+        return l10n.badgeDescStreak3;
+      case 'streak_7':
+        return l10n.badgeDescStreak7;
+      case 'mind_reset_5':
+        return l10n.badgeDescMindReset5;
+      case 'streak_30':
+        return l10n.badgeDescStreak30;
+      case 'profile_complete':
+        return l10n.badgeDescProfileComplete;
+      case 'content_diet_10':
+        return l10n.badgeDescContentDiet10;
+      default:
+        return "";
+    }
+  }
 }
 
 class ConfettiPainter extends CustomPainter {
@@ -201,8 +232,6 @@ class ConfettiPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // This is a simplified static-frame confetti for demonstration
-    // In a real app, you'd want this to be animated over time
     final random = Random(42);
     for (int i = 0; i < 60; i++) {
       final paint = Paint()
@@ -213,7 +242,7 @@ class ConfettiPainter extends CustomPainter {
           Colors.pink,
           Colors.green
         ][random.nextInt(5)]
-            .withOpacity(0.6);
+            .withValues(alpha: 0.6);
 
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;

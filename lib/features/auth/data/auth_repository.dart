@@ -32,7 +32,6 @@ class AuthRepository {
       if (user == null) return null;
       var userModel = await _userRepo.getUser(user.uid);
       if (userModel == null) {
-        // Fallback: Create user model if missing in Firestore
         userModel = UserModel(
           uid: user.uid,
           email: user.email ?? '',
@@ -126,11 +125,9 @@ class AuthRepository {
     UserCredential userCredential;
 
     if (kIsWeb) {
-      // Use direct Firebase Auth popup for web (more reliable than the plugin)
       final googleProvider = GoogleAuthProvider();
       userCredential = await _auth.signInWithPopup(googleProvider);
     } else {
-      // Use the google_sign_in plugin for native platforms
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
@@ -190,16 +187,10 @@ class AuthRepository {
       gender: gender,
       country: country,
     );
-
-    // 1. Update Firestore (Source of truth)
     await _userRepo.updateUser(updatedModel);
-
-    // 2. Update Firebase Auth display name if changed
     if (displayName != null) {
       await user.updateDisplayName(displayName);
     }
-
-    // 3. Update local cache
     _currentUser = updatedModel;
   }
 
@@ -228,8 +219,6 @@ class AuthRepository {
     if (user == null) return;
 
     final uid = user.uid;
-
-    // 1. Re-authenticate
     if (password != null && user.email != null) {
       final cred = EmailAuthProvider.credential(
         email: user.email!,
@@ -252,10 +241,6 @@ class AuthRepository {
         );
       }
     }
-
-    // 2. Cleanup User Data (Async)
-
-    // Delete activities from Firestore
     final activities = await FirebaseFirestore.instance
         .collection('activities')
         .where('uid', isEqualTo: uid)
@@ -263,14 +248,8 @@ class AuthRepository {
     for (var doc in activities.docs) {
       await doc.reference.delete();
     }
-
-    // Delete Firestore user document
     await _userRepo.deleteUser(uid);
-
-    // 3. Delete Firebase Auth account
     await user.delete();
-
-    // 4. Local cleanup
     _currentUser = null;
     await _googleSignIn.signOut();
   }

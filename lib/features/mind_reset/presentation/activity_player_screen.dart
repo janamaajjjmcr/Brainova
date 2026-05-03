@@ -10,8 +10,7 @@ import 'package:just_audio/just_audio.dart';
 import '../../../core/theme/app_theme.dart';
 import '../data/mind_reset_model.dart';
 import '../../tracking/domain/brain_rot_service.dart';
-
-// Eye state for workout animation
+import 'package:brainova/l10n/app_localizations.dart';
 enum _EyeState {
   lookUp,
   lookRight,
@@ -38,37 +37,35 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
   bool _isPlaying = false;
   bool _isCompleted = false;
   int _selectedDurationMinutes = 5;
-
-  // Breathing & Animations
   late AnimationController _breathController;
   late AnimationController _rippleController;
   String _breathPhase = 'Inhale';
   int _breathPhaseSeconds = 4;
   Timer? _breathPhaseTimer;
-
-  // Rain particles
   late AnimationController _rainController;
   final List<_RainDrop> _rainDrops = [];
   final Random _random = Random();
   AudioPlayer? _audioPlayer;
-
-  // Typewriter Brain Dump
-  final String _typeText = "Clear your mind and let thoughts flow...";
+  late String _typeText;
   int _typeIndex = 0;
   Timer? _typeTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _typeText = AppLocalizations.of(context).mindResetTypeText;
+      });
+    });
     _setDuration(5);
     _setupAnimations();
     _generateRainDrops();
-
-    // Setup audio for rain
     if (widget.activity.id == '3') {
       _audioPlayer = AudioPlayer();
       _audioPlayer!.setAsset('assets/audio/rain3.mp3').catchError((e) {
         debugPrint('Audio loading error: $e');
+        return null;
       });
       _audioPlayer!.setLoopMode(LoopMode.one);
     }
@@ -303,14 +300,13 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
             .clamp(0, totalSteps - 1);
 
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      // Step Counter (Top)
-      Text('Step ${currentStep + 1} of $totalSteps',
+      Text(
+        AppLocalizations.of(context).mindResetStepOf(
+            currentStep + 1, totalSteps),
           style: const TextStyle(
               color: Colors.white70, fontSize: 14, letterSpacing: 1)),
 
       const SizedBox(height: 32),
-
-      // Lottie Animation (Middle)
       SizedBox(
         width: 250,
         height: 250,
@@ -323,18 +319,16 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
       ),
 
       const SizedBox(height: 32),
-
-      // Instruction Box (Matching Screenshot)
       if (_isPlaying && widget.activity.steps.isNotEmpty)
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 40),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
               border:
-                  Border.all(color: Colors.white.withOpacity(0.1), width: 1)),
-          child: Text(widget.activity.steps[currentStep],
+                  Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1)),
+          child: Text(_getLocalizedStep(widget.activity.id, currentStep, widget.activity.steps[currentStep], AppLocalizations.of(context)),
               textAlign: TextAlign.center,
               style: const TextStyle(
                   color: Colors.white,
@@ -344,8 +338,6 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
         ),
 
       const SizedBox(height: 24),
-
-      // Timer Text (Bottom)
       Text(_timerText,
           style: const TextStyle(
               color: Colors.white54,
@@ -361,16 +353,19 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
       child: CustomPaint(
         painter: _RainPainter(drops: _rainDrops),
         child: Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(LucideIcons.cloudRain, color: Colors.white, size: 48),
-          const SizedBox(height: 16),
-          Text(_timerText,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.w200)),
-          const SizedBox(height: 12),
-          Text(_isPlaying ? 'Focus on the sound...' : 'Press play to start',
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(LucideIcons.cloudRain, color: Colors.white, size: 48),
+        const SizedBox(height: 16),
+        Text(_timerText,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 48,
+                fontWeight: FontWeight.w200)),
+        const SizedBox(height: 12),
+        Text(
+          _isPlaying
+              ? AppLocalizations.of(context).mindResetFocusOnSound
+              : AppLocalizations.of(context).mindResetPressPlay,
               style: const TextStyle(color: Colors.white60, fontSize: 16)),
         ])),
       ),
@@ -387,13 +382,15 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
             .clamp(0, totalSteps - 1);
 
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      Text('Step ${currentStep + 1} of $totalSteps',
+      Text(
+        AppLocalizations.of(context).mindResetStepOf(
+            currentStep + 1, totalSteps),
           style: const TextStyle(
               color: Colors.white70, fontSize: 14, letterSpacing: 1)),
       const SizedBox(height: 32),
       _AnimatedEyeWorkout(currentStep: currentStep, isPlaying: _isPlaying),
       const SizedBox(height: 32),
-      _ActivityStepBox(text: widget.activity.steps[currentStep]),
+      _ActivityStepBox(text: _getLocalizedStep(widget.activity.id, currentStep, widget.activity.steps[currentStep], AppLocalizations.of(context))),
       const SizedBox(height: 24),
       Text(_timerText,
           style: const TextStyle(
@@ -430,7 +427,7 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
             const SizedBox(height: 24),
             Text(_timerText,
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 20,
                     fontWeight: FontWeight.w200)),
           ]),
@@ -448,7 +445,7 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
           value:
               _totalSeconds == 0 ? 0 : 1 - (_remainingSeconds / _totalSeconds),
           strokeWidth: 8,
-          backgroundColor: Colors.white.withOpacity(0.2),
+          backgroundColor: Colors.white.withValues(alpha: 0.2),
           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
         ),
       ),
@@ -467,7 +464,6 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(children: [
-              // Header
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -478,7 +474,7 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                       icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => context.pop(),
                     ),
-                    Text(widget.activity.title,
+                    Text(_getLocalizedTitle(widget.activity.id, AppLocalizations.of(context)),
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -493,21 +489,20 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
               if (!_isCompleted) ...[
                 _buildAnimation(),
                 const SizedBox(height: 48),
-
-                // Instructions (Matching the requested enhanced format)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(24)),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Center(
-                            child: Text("INSTRUCTIONS",
-                                style: TextStyle(
+                          Center(
+                            child: Text(
+                                AppLocalizations.of(context).mindResetInstructions.toUpperCase(),
+                                style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -535,7 +530,7 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
-                                      child: Text(entry.value,
+                                      child: Text(_getLocalizedStep(widget.activity.id, entry.key, entry.value, AppLocalizations.of(context)),
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 15,
@@ -548,8 +543,6 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Duration selector
                 if (!_isPlaying)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -565,8 +558,6 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                         .toList(),
                   ),
                 const SizedBox(height: 40),
-
-                // Controls
                 GestureDetector(
                   onTap: _toggleTimer,
                   child: Container(
@@ -576,7 +567,7 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 30,
                               offset: const Offset(0, 15))
                         ]),
@@ -592,8 +583,9 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                 const Icon(LucideIcons.checkCircle,
                     size: 120, color: Colors.white),
                 const SizedBox(height: 32),
-                const Text("Activity Completed!",
-                    style: TextStyle(
+                Text(
+                  AppLocalizations.of(context).mindResetActivityCompleted,
+                    style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.white)),
@@ -611,9 +603,10 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
                           horizontal: 64, vertical: 20),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100))),
-                  child: const Text("Done",
+                  child: Text(
+                    AppLocalizations.of(context).mindResetDone,
                       style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 64),
               ],
@@ -623,9 +616,66 @@ class _MindResetPlayerScreenState extends ConsumerState<MindResetPlayerScreen>
       ),
     );
   }
-}
+  String _getLocalizedTitle(String id, AppLocalizations l10n) {
+    switch (id) {
+      case '1': return l10n.mindResetTitle1;
+      case '2': return l10n.mindResetTitle2;
+      case '3': return l10n.mindResetTitle3;
+      case '4': return l10n.mindResetTitle4;
+      case '5': return l10n.mindResetTitle5;
+      case '6': return l10n.mindResetTitle6;
+      default: return widget.activity.title;
+    }
+  }
 
-// Helper Widgets & Painters
+  String _getLocalizedStep(String id, int index, String original, AppLocalizations l10n) {
+    switch (id) {
+      case '1':
+        if (index == 0) return l10n.mindResetStep1_1;
+        if (index == 1) return l10n.mindResetStep1_2;
+        if (index == 2) return l10n.mindResetStep1_3;
+        if (index == 3) return l10n.mindResetStep1_4;
+        break;
+      case '2':
+        if (index == 0) return l10n.mindResetStep2_1;
+        if (index == 1) return l10n.mindResetStep2_2;
+        if (index == 2) return l10n.mindResetStep2_3;
+        if (index == 3) return l10n.mindResetStep2_4;
+        if (index == 4) return l10n.mindResetStep2_5;
+        if (index == 5) return l10n.mindResetStep2_6;
+        break;
+      case '3':
+        if (index == 0) return l10n.mindResetStep3_1;
+        if (index == 1) return l10n.mindResetStep3_2;
+        if (index == 2) return l10n.mindResetStep3_3;
+        if (index == 3) return l10n.mindResetStep3_4;
+        break;
+      case '4':
+        if (index == 0) return l10n.mindResetStep4_1;
+        if (index == 1) return l10n.mindResetStep4_2;
+        if (index == 2) return l10n.mindResetStep4_3;
+        if (index == 3) return l10n.mindResetStep4_4;
+        if (index == 4) return l10n.mindResetStep4_5;
+        if (index == 5) return l10n.mindResetStep4_6;
+        break;
+      case '5':
+        if (index == 0) return l10n.mindResetStep5_1;
+        if (index == 1) return l10n.mindResetStep5_2;
+        if (index == 2) return l10n.mindResetStep5_3;
+        if (index == 3) return l10n.mindResetStep5_4;
+        if (index == 4) return l10n.mindResetStep5_5;
+        break;
+      case '6':
+        if (index == 0) return l10n.mindResetStep6_1;
+        if (index == 1) return l10n.mindResetStep6_2;
+        if (index == 2) return l10n.mindResetStep6_3;
+        if (index == 3) return l10n.mindResetStep6_4;
+        if (index == 4) return l10n.mindResetStep6_5;
+        break;
+    }
+    return original;
+  }
+}
 
 class _DurationChip extends StatelessWidget {
   final int minutes;
@@ -642,9 +692,9 @@ class _DurationChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.2),
+            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(100)),
-        child: Text('$minutes min',
+        child: Text(AppLocalizations.of(context).mindResetMin(minutes),
             style: TextStyle(
                 color: isSelected ? AppTheme.pink : Colors.white,
                 fontWeight: FontWeight.bold,
@@ -664,7 +714,7 @@ class _ActivityStepBox extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 32),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20)),
       child: Text(text,
           textAlign: TextAlign.center,
@@ -673,8 +723,6 @@ class _ActivityStepBox extends StatelessWidget {
     );
   }
 }
-
-// Rain Animation classes
 class _RainDrop {
   double x, y, speed, length, opacity;
   _RainDrop(
@@ -693,7 +741,7 @@ class _RainPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..strokeCap = StrokeCap.round;
     for (var drop in drops) {
-      paint.color = Colors.white.withOpacity(drop.opacity);
+      paint.color = Colors.white.withValues(alpha: drop.opacity);
       paint.strokeWidth = 1.0;
       canvas.drawLine(
         Offset(drop.x * size.width, drop.y * size.height),
@@ -706,8 +754,6 @@ class _RainPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
-// Eye workout animation
 class _AnimatedEyeWorkout extends StatefulWidget {
   final int currentStep;
   final bool isPlaying;
@@ -864,31 +910,23 @@ class _DetailedEyePainter extends CustomPainter {
       ..quadraticBezierTo(cx, cy - ry, cx + rx, cy)
       ..quadraticBezierTo(cx, cy + ry, cx - rx, cy);
 
-    canvas.drawPath(eyePath, Paint()..color = Colors.white.withOpacity(0.95));
+    canvas.drawPath(eyePath, Paint()..color = Colors.white.withValues(alpha: 0.95));
 
     canvas.save();
     canvas.clipPath(eyePath);
-
-    // Iris
     final irisX = cx + pupilOffset.dx * rx * 0.6;
     final irisY = cy + pupilOffset.dy * ry * 0.6;
     canvas.drawCircle(
         Offset(irisX, irisY), 24, Paint()..color = AppTheme.primary);
-
-    // Pupil
     canvas.drawCircle(Offset(irisX, irisY), 12, Paint()..color = Colors.black);
-
-    // Shine
     canvas.drawCircle(
         Offset(irisX - 6, irisY - 6), 4, Paint()..color = Colors.white70);
 
     canvas.restore();
-
-    // Eye outline
     canvas.drawPath(
         eyePath,
         Paint()
-          ..color = Colors.white.withOpacity(0.5)
+          ..color = Colors.white.withValues(alpha: 0.5)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2);
   }
@@ -896,35 +934,29 @@ class _DetailedEyePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
-// Notebook Painter for Brain Dump
 class _NotebookPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height),
             const Radius.circular(20)),
         paint);
-
-    // Lines
     final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
+      ..color = Colors.white.withValues(alpha: 0.15)
       ..strokeWidth = 1.5;
 
     for (double y = 40; y < size.height; y += 30) {
       canvas.drawLine(Offset(20, y), Offset(size.width - 20, y), linePaint);
     }
-
-    // Vertical line
     canvas.drawLine(
         const Offset(40, 0),
         const Offset(40, 300),
         Paint()
-          ..color = Colors.red.withOpacity(0.2)
+          ..color = Colors.red.withValues(alpha: 0.2)
           ..strokeWidth = 1);
   }
 

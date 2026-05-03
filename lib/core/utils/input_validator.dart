@@ -86,9 +86,6 @@ class InputValidator {
     return null;
   }
 
-  /// Sanitizes text to prevent basic NoSQL injection patterns
-  /// though Cloud Firestore is mostly immune to traditional SQL injection.
-  /// We primarily strip potential control characters.
   static String sanitize(String input) {
     return input.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '').trim();
   }

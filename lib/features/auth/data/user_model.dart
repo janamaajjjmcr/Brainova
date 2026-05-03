@@ -19,12 +19,12 @@ class UserModel {
   final int totalSessions;
   final int dailySessions;
   final int contentDietCount;
-  final String role; // 'user' or 'admin'
+  final String role;
   final DateTime?
-      lastDailyResetDate; // tracks the last date daily counters were reset
+      lastDailyResetDate;
   final bool isRestricted;
   final bool isEmailVerified;
-  final Map<String, double> dailyDiet; // Stores the % breakdown for today
+  final Map<String, double> dailyDiet;
 
   UserModel({
     required this.uid,

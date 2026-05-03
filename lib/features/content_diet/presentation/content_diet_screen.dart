@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../data/content_diet_repository.dart';
@@ -54,14 +55,16 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
       ref.invalidate(realityCheckProvider(user.uid));
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Entry Added!')),
+          SnackBar(content: Text(l10n.contentDietEntryAdded)),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(l10n.commonError(e.toString()))),
         );
       }
     } finally {
@@ -71,6 +74,7 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final recentEntriesAsync = ref.watch(recentDietEntriesProvider);
     final user = ref.watch(authRepositoryProvider).currentUser;
     final weeklyBreakdownAsync =
@@ -78,7 +82,7 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log Content'),
+        title: Text(l10n.contentDietLogContent),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
@@ -106,20 +110,20 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
                 ),
               const SizedBox(height: 24),
               Text(
-                "How did you spend your time?",
+                l10n.contentDietHowDidYouSpend,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
-              _buildInputForm(),
+              _buildInputForm(context),
               const SizedBox(height: 32),
               Text(
-                'Recent Logs',
+                l10n.contentDietRecentLogs,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
               recentEntriesAsync.when(
                 data: (entries) {
-                  if (entries.isEmpty) return const Text('No entries yet.');
+                  if (entries.isEmpty) return Text(l10n.contentDietNoEntries);
                   return Column(
                     children: entries.map((e) => _EntryCard(entry: e)).toList(),
                   );
@@ -134,13 +138,14 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
     );
   }
 
-  Widget _buildInputForm() {
+  Widget _buildInputForm(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +172,7 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
                       border: isSelected
                           ? null
                           : Border.all(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                             ),
                     ),
                     child: Column(
@@ -179,7 +184,7 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          cat.name.toUpperCase(),
+                          _getCategoryLabel(cat, l10n),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -198,18 +203,18 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
             controller: _minutesController,
             keyboardType: TextInputType.number,
             style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              labelText: 'Duration (minutes)',
-              prefixIcon: Icon(LucideIcons.clock),
+            decoration: InputDecoration(
+              labelText: l10n.contentDietDuration,
+              prefixIcon: const Icon(LucideIcons.clock),
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _notesController,
             style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              labelText: 'Notes (optional)',
-              prefixIcon: Icon(LucideIcons.fileText),
+            decoration: InputDecoration(
+              labelText: l10n.contentDietNotes,
+              prefixIcon: const Icon(LucideIcons.fileText),
             ),
           ),
           const SizedBox(height: 24),
@@ -223,12 +228,25 @@ class _ContentDietScreenState extends ConsumerState<ContentDietScreen> {
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white),
                     )
-                  : const Text('Save Entry'),
+                  : Text(l10n.contentDietSaveEntry),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _getCategoryLabel(DietCategory cat, AppLocalizations l10n) {
+    switch (cat) {
+      case DietCategory.learning:
+        return l10n.contentDietLearningFull;
+      case DietCategory.entertainment:
+        return l10n.contentDietEntertainmentFull;
+      case DietCategory.junk:
+        return l10n.contentDietJunkFull;
+      case DietCategory.social:
+        return l10n.contentDietSocialFull;
+    }
   }
 
   Color _getColorForCategory(DietCategory cat) {
@@ -270,14 +288,14 @@ class _EntryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: _getColor(entry.category).withOpacity(0.1),
+              color: _getColor(entry.category).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -292,7 +310,7 @@ class _EntryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${entry.minutes} min - ${entry.category.name.toUpperCase()}',
+                  '${entry.minutes} min - ${_getEntryLabel(entry.category, AppLocalizations.of(context))}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -340,6 +358,19 @@ class _EntryCard extends StatelessWidget {
         return LucideIcons.share2;
     }
   }
+
+  String _getEntryLabel(DietCategory cat, AppLocalizations l10n) {
+    switch (cat) {
+      case DietCategory.learning:
+        return l10n.contentDietLearningFull;
+      case DietCategory.entertainment:
+        return l10n.contentDietEntertainmentFull;
+      case DietCategory.junk:
+        return l10n.contentDietJunkFull;
+      case DietCategory.social:
+        return l10n.contentDietSocialFull;
+    }
+  }
 }
 
 class _WeeklySummaryCard extends StatelessWidget {
@@ -348,6 +379,7 @@ class _WeeklySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bool isEmpty = data.isEmpty;
 
     return Container(
@@ -362,7 +394,7 @@ class _WeeklySummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF52AF).withOpacity(0.3),
+            color: const Color(0xFFFF52AF).withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -375,18 +407,18 @@ class _WeeklySummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
-                      child: Text('Weekly Summary',
+                      child: Text(l10n.contentDietWeeklySummary,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold)),
                     ),
-                    Icon(LucideIcons.barChart2, color: Colors.white, size: 18),
+                    const Icon(LucideIcons.barChart2, color: Colors.white, size: 18),
                   ],
                 ),
                 const Spacer(),
@@ -401,9 +433,9 @@ class _WeeklySummaryCard extends StatelessWidget {
                         painter: PieChartPainter(data: data),
                       ),
                       if (isEmpty)
-                        const Text(
-                          "No Data",
-                          style: TextStyle(
+                        Text(
+                          l10n.contentDietNoData,
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -443,7 +475,7 @@ class _WeeklySummaryCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          "${_getLabelText(type)} ${percentage.toStringAsFixed(0)}%",
+                          "${_getLabelText(type, l10n)} ${percentage.toStringAsFixed(0)}%",
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -461,16 +493,16 @@ class _WeeklySummaryCard extends StatelessWidget {
     );
   }
 
-  String _getLabelText(ActivityType type) {
+  String _getLabelText(ActivityType type, AppLocalizations l10n) {
     switch (type) {
       case ActivityType.learning:
-        return "Learning";
+        return l10n.contentDietLearning;
       case ActivityType.entertainment:
-        return "Entert.";
+        return l10n.contentDietEntertainment;
       case ActivityType.junk:
-        return "Junk";
+        return l10n.contentDietJunk;
       case ActivityType.social:
-        return "Social";
+        return l10n.contentDietSocial;
       default:
         return "";
     }
@@ -500,7 +532,7 @@ class PieChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) {
       final Paint bgPaint = Paint()
-        ..color = Colors.white.withOpacity(0.1)
+        ..color = Colors.white.withValues(alpha: 0.1)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(
           Offset(size.width / 2, size.height / 2), size.width / 2, bgPaint);

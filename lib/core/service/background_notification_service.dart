@@ -64,8 +64,6 @@ void onStart(ServiceInstance service) async {
   service.on('stopService').listen((event) {
     service.stopSelf();
   });
-
-  // Initialize Firebase inside the background isolate
   try {
     print('DEBUG BG: Initializing Firebase...');
     await Firebase.initializeApp(
@@ -74,10 +72,8 @@ void onStart(ServiceInstance service) async {
     print('DEBUG BG: Firebase initialized');
   } catch (e) {
     print('DEBUG BG: Firebase init error: $e');
-    return; // Can't proceed without Firebase
+    return;
   }
-
-  // Initialize notifications
   try {
     await NotificationService().init(isBackground: true);
     print('DEBUG BG: Notifications initialized');
@@ -85,8 +81,6 @@ void onStart(ServiceInstance service) async {
     print('DEBUG BG: Notification init error: $e');
     return;
   }
-
-  // Heartbeat: confirm background service is alive
   try {
     await NotificationService().showNotification(
       title: "Brainova is Active",
@@ -96,8 +90,6 @@ void onStart(ServiceInstance service) async {
   } catch (e) {
     print('DEBUG BG: Heartbeat error: $e');
   }
-
-  // Poll every 2 minutes using only Firestore (no MethodChannel needed)
   Timer.periodic(const Duration(minutes: 2), (timer) async {
     print('DEBUG BG: Timer fired');
 
@@ -139,12 +131,10 @@ void onStart(ServiceInstance service) async {
   });
 }
 
-/// Computes a stimulation score (0–100) purely from Firestore data.
-/// This avoids MethodChannel which is unavailable in background isolates.
 Future<int> _computeScoreFromFirestore(String uid) async {
   final firestore = FirebaseFirestore.instance;
   final now = DateTime.now();
-  final since = DateTime(now.year, now.month, now.day); // midnight today
+  final since = DateTime(now.year, now.month, now.day);
 
   final snapshot = await firestore
       .collection('activities')

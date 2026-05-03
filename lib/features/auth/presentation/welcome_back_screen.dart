@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rive/rive.dart' hide LinearGradient, Image;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../data/auth_providers.dart';
 import '../../../core/utils/input_validator.dart';
 
@@ -149,7 +151,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
         );
       }
     }
@@ -157,6 +159,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -168,7 +171,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
               ),
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.45)),
+          Container(color: Colors.black.withValues(alpha: 0.45)),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -184,11 +187,46 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                           scale: _breathing,
                           child: Column(
                             children: [
-                              Image.asset(
-                                'assets/images/logo.png',
-                                width: 80,
-                                height: 80,
+                              SizedBox(
+                                width: 150,
+                                height: 150,
+                                child: RiveAnimation.asset(
+                                  'assets/rive/brainova_logo.riv',
+                                  fit: BoxFit.contain,
+                                  stateMachines: const ['State Machine 1'],
+                                  onInit: (artboard) {
+                                    try {
+                                      (artboard as dynamic).backgroundColor = 0x00000000;
+                                    } catch (_) {}
+                                    try {
+                                      final dynamic ab = artboard;
+                                      if (ab.fills != null) {
+                                        ab.fills.clear();
+                                      }
+                                    } catch (_) {}
+
+                                    artboard.forEachComponent((child) {
+                                      final name = child.name.toLowerCase();
+                                      if (name.contains('bg') ||
+                                          name.contains('background') ||
+                                          name.contains('rectangle') ||
+                                          name.contains('white') ||
+                                          name.contains('box') ||
+                                          name.contains('container') ||
+                                          name.contains('rect') ||
+                                          name.contains('solid') ||
+                                          name.contains('base')) {
+                                        try {
+                                          (child as dynamic).isVisible = false;
+                                          (child as dynamic).opacity = 0.0;
+                                        } catch (_) {}
+                                      }
+                                      debugPrint('Rive Component: ${child.name} (${child.runtimeType})');
+                                    });
+                                  },
+                                ),
                               ),
+
                               const SizedBox(height: 12),
                               const Text(
                                 'Brainova',
@@ -204,7 +242,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                         const SizedBox(height: 48),
                         _inputField(
                           controller: _emailController,
-                          hint: 'Email',
+                          hint: l10n.loginEmailHint,
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: InputValidator.validateEmail,
@@ -212,7 +250,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                         const SizedBox(height: 16),
                         _inputField(
                           controller: _passwordController,
-                          hint: 'Password',
+                          hint: l10n.loginPasswordHint,
                           icon: Icons.lock_outline,
                           obscure: _obscurePassword,
                           validator: (val) =>
@@ -236,9 +274,9 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
                             onTap: _forgotPassword,
-                            child: const Text(
-                              'Forgot password?',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.loginForgotPassword,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -278,9 +316,9 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                                             strokeWidth: 2,
                                             color: Colors.black),
                                       )
-                                    : const Text(
-                                        'Login',
-                                        style: TextStyle(
+                                    : Text(
+                                        l10n.loginButton,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
@@ -295,18 +333,18 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                           children: [
                             Expanded(
                               child:
-                                  Divider(color: Colors.white.withOpacity(0.6)),
+                                  Divider(color: Colors.white.withValues(alpha: 0.6)),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
-                                "Or",
-                                style: TextStyle(color: Colors.white70),
+                                l10n.loginOr,
+                                style: const TextStyle(color: Colors.white70),
                               ),
                             ),
                             Expanded(
                               child:
-                                  Divider(color: Colors.white.withOpacity(0.6)),
+                                  Divider(color: Colors.white.withValues(alpha: 0.6)),
                             ),
                           ],
                         ),
@@ -328,7 +366,7 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: Colors.white.withValues(alpha: 0.5),
                                         blurRadius: _googleGlow.value,
                                       ),
                                       const BoxShadow(
@@ -346,9 +384,9 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                                         height: 22,
                                       ),
                                       const SizedBox(width: 12),
-                                      const Text(
-                                        "Continue with Google",
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.loginContinueWithGoogle,
+                                        style: const TextStyle(
                                           color: Colors.black87,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
@@ -365,15 +403,15 @@ class _WelcomeBackScreenState extends ConsumerState<WelcomeBackScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "Don't have an account? ",
-                              style: TextStyle(color: Colors.white70),
+                            Text(
+                              l10n.loginNoAccount,
+                              style: const TextStyle(color: Colors.white70),
                             ),
                             GestureDetector(
                               onTap: () => context.pushReplacement('/signup'),
-                              child: const Text(
-                                "Sign up",
-                                style: TextStyle(
+                              child: Text(
+                                l10n.loginSignUp,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,

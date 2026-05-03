@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
 import 'widgets/admin_overview_view.dart';
 import 'widgets/challenge_management_view.dart';
@@ -18,6 +19,7 @@ class AdminDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedView = ref.watch(adminViewProvider);
+    final l10n = AppLocalizations.of(context);
 
     final List<Widget> views = [
       const AdminOverviewView(),
@@ -29,34 +31,40 @@ class AdminDashboardScreen extends ConsumerWidget {
     ];
 
     final List<String> titles = [
-      'Dashboard Overview',
-      'Challenge Management',
-      'User Management',
-      'Analytics & Reports',
-      'Badge Management',
-      'Brainova Information Center',
+      l10n.adminDashboardTitle,
+      l10n.adminChallengeManagement,
+      l10n.adminUserManagement,
+      l10n.adminAnalyticsReports,
+      l10n.adminBadgeManagement,
+      l10n.adminAppSettings,
     ];
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: isDark ? AppTheme.background : AppTheme.lightBackground,
       appBar: AppBar(
         title: Text(
           titles[selectedView],
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.logOut),
             onPressed: () => context.go('/home'),
-            tooltip: 'Exit Admin',
+            tooltip: l10n.adminExit,
           ),
           if (selectedView != 0)
             IconButton(
               icon: const Icon(LucideIcons.layoutDashboard),
               onPressed: () => ref.read(adminViewProvider.notifier).state = 0,
-              tooltip: 'Back to Overview',
+              tooltip: l10n.adminBackToOverview,
             ),
         ],
       ),
@@ -74,33 +82,47 @@ class _AdminMiniNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SafeArea(
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+          color: isDark ? AppTheme.surface : AppTheme.lightSurface,
+          border: Border(
+              top: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05))),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
                 child: _NavIcon(
-                    index: 0, icon: LucideIcons.layoutDashboard, label: 'Home')),
+                    index: 0,
+                    icon: LucideIcons.layoutDashboard,
+                    label: l10n.adminHome)),
             Expanded(
                 child: _NavIcon(
-                    index: 1, icon: LucideIcons.trophy, label: 'Challenges')),
-            Expanded(
-                child:
-                    _NavIcon(index: 2, icon: LucideIcons.users, label: 'Users')),
+                    index: 1,
+                    icon: LucideIcons.trophy,
+                    label: l10n.adminChallenges)),
             Expanded(
                 child: _NavIcon(
-                    index: 3, icon: LucideIcons.barChart, label: 'Stats')),
+                    index: 2, icon: LucideIcons.users, label: l10n.adminUsers)),
             Expanded(
-                child:
-                    _NavIcon(index: 4, icon: LucideIcons.award, label: 'Badges')),
+                child: _NavIcon(
+                    index: 3,
+                    icon: LucideIcons.barChart,
+                    label: l10n.adminStats)),
             Expanded(
-                child: _NavIcon(index: 5, icon: LucideIcons.info, label: 'Info')),
+                child: _NavIcon(
+                    index: 4, icon: LucideIcons.award, label: l10n.adminBadges)),
+            Expanded(
+                child: _NavIcon(
+                    index: 5, icon: LucideIcons.info, label: l10n.adminInfo)),
           ],
         ),
       ),
@@ -129,7 +151,11 @@ class _NavIcon extends ConsumerWidget {
         children: [
           Icon(
             icon,
-            color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+            color: isSelected
+                ? AppTheme.primary
+                : (Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.textSecondary
+                    : AppTheme.lightTextSecondary),
             size: 24,
           ),
           const SizedBox(height: 4),
@@ -139,7 +165,11 @@ class _NavIcon extends ConsumerWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+                color: isSelected
+                    ? AppTheme.primary
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.textSecondary
+                        : AppTheme.lightTextSecondary),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

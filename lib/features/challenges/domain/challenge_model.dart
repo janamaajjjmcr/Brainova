@@ -4,7 +4,7 @@ class Challenge {
   final String id;
   final String title;
   final String description;
-  final int duration; // Days
+  final int duration;
   final int points;
   final DateTime startDate;
   final DateTime endDate;

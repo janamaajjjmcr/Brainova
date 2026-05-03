@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
@@ -15,6 +16,7 @@ class AdminOverviewView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metricsAsync = ref.watch(adminMetricsProvider);
+    final l10n = AppLocalizations.of(context);
 
     return RefreshIndicator(
       onRefresh: () async => ref.refresh(adminMetricsProvider),
@@ -25,7 +27,7 @@ class AdminOverviewView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'System Health',
+              l10n.adminSystemHealth,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -45,25 +47,25 @@ class AdminOverviewView extends ConsumerWidget {
                     childAspectRatio: 1.3,
                     children: [
                       _StatCard(
-                        title: 'Total Users',
+                        title: l10n.adminTotalUsers,
                         value: metrics['totalUsers'].toString(),
                         icon: LucideIcons.users,
                         color: AppTheme.primary,
                       ),
                       _StatCard(
-                        title: 'Active Today',
+                        title: l10n.adminActiveToday,
                         value: metrics['activeToday'].toString(),
                         icon: LucideIcons.activity,
                         color: AppTheme.success,
                       ),
                       _StatCard(
-                        title: 'Avg. Brain Rot',
+                        title: l10n.adminAvgBrainRot,
                         value: '${metrics['avgBrainRot']}%',
                         icon: LucideIcons.brainCircuit,
                         color: AppTheme.warning,
                       ),
                       _StatCard(
-                        title: 'Resets Done',
+                        title: l10n.adminResetsDone,
                         value: metrics['mindResetsCompleted'].toString(),
                         icon: LucideIcons.checkSquare,
                         color: AppTheme.pink,
@@ -71,9 +73,9 @@ class AdminOverviewView extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'Management Actions',
-                    style: TextStyle(
+                  Text(
+                    l10n.adminManagementActions,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -84,7 +86,7 @@ class AdminOverviewView extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _ActionCard(
-                          title: 'Challenges',
+                          title: l10n.adminChallenges,
                           icon: LucideIcons.trophy,
                           color: AppTheme.primary,
                           onTap: () =>
@@ -94,7 +96,7 @@ class AdminOverviewView extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionCard(
-                          title: 'Users',
+                          title: l10n.adminUsers,
                           icon: LucideIcons.users,
                           color: AppTheme.success,
                           onTap: () =>
@@ -108,7 +110,7 @@ class AdminOverviewView extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _ActionCard(
-                          title: 'Badges',
+                          title: l10n.adminBadges,
                           icon: LucideIcons.award,
                           color: AppTheme.warning,
                           onTap: () =>
@@ -118,7 +120,7 @@ class AdminOverviewView extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _ActionCard(
-                          title: 'Settings',
+                          title: l10n.adminSettings,
                           icon: LucideIcons.settings,
                           color: AppTheme.textSecondary,
                           onTap: () =>
@@ -130,7 +132,7 @@ class AdminOverviewView extends ConsumerWidget {
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => Center(child: Text('Error: $e')),
+              error: (e, st) => Center(child: Text(l10n.commonError(e.toString()))),
             ),
           ],
         ),
@@ -162,7 +164,7 @@ class _ActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surfaceHighlight,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.1)),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
@@ -203,10 +205,10 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.05),
+            color: color.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -219,7 +221,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),

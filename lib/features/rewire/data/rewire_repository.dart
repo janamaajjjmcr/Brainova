@@ -137,9 +137,8 @@ class RewireRepository {
       content: 'Unscramble: EFOLI',
       options: ['Life', 'File', 'Foil', 'Life/File'],
       correctAnswer:
-          'Life/File', // Allowing multiple logic if options support it, simpler here
+          'Life/File',
     ),
-    // Correction for 17
     RewireTask(
       id: '17b',
       title: 'Anagram',
@@ -192,7 +191,6 @@ class RewireRepository {
     await Future.delayed(const Duration(milliseconds: 400));
     final available = _tasks.where((t) => !excludeIds.contains(t.id)).toList();
     if (available.isEmpty) {
-      // If all done, reset (allow all)
       final random = Random();
       return _tasks[random.nextInt(_tasks.length)];
     }

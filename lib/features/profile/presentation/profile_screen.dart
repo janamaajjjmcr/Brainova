@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/localization/locale_provider.dart';
 import '../../auth/data/auth_providers.dart';
 import '../../gamification/data/streak_controller.dart';
 import '../../gamification/presentation/widgets/streak_widget.dart';
@@ -13,6 +16,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final userProfileAsync = ref.watch(userProfileProvider);
     final streakUser = ref.watch(streakControllerProvider);
     final dailyStatsAsync = ref.watch(dailyStatsProvider);
@@ -25,7 +29,20 @@ class ProfileScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                // User Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.navProfile,
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                    const _DayNightToggle(),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 Column(
                   children: [
                     Container(
@@ -40,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      user?.displayName ?? 'User',
+                      user?.displayName ?? l10n.commonUser,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -49,7 +66,11 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       user?.email ?? 'user@brainova.app',
-                      style: const TextStyle(color: AppTheme.textSecondary),
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppTheme.textSecondary
+                            : AppTheme.lightTextSecondary,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     const StreakWidget(),
@@ -59,7 +80,7 @@ class ProfileScreen extends ConsumerWidget {
                           .read(streakControllerProvider.notifier)
                           .completeDailyTask(),
                       icon: const Icon(LucideIcons.checkCircle, size: 18),
-                      label: const Text('Complete Daily Task'),
+                      label: Text(l10n.profileCompleteDailyTask),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
@@ -71,12 +92,10 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-
-                // Your Statistics
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    'Your Statistics',
+                    l10n.profileYourStatistics,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -84,11 +103,24 @@ class ProfileScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppTheme.surface,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.surface
+                        : AppTheme.lightSurface,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppTheme.lightSurfaceHighlight,
                     ),
+                    boxShadow: Theme.of(context).brightness == Brightness.dark
+                        ? []
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: dailyStatsAsync.when(
                     data: (stats) => Row(
@@ -96,25 +128,25 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         _StatColumn(
                           value: (stats['resets'] ?? 0).toString(),
-                          label: 'Resets',
+                          label: l10n.profileResets,
                           color: AppTheme.primary,
                           icon: LucideIcons.brainCircuit,
                         ),
                         _StatColumn(
                           value: currentStreak.toString(),
-                          label: 'Day Streak',
+                          label: l10n.profileDayStreak,
                           color: AppTheme.warning,
                           icon: LucideIcons.flame,
                         ),
                         _StatColumn(
                           value: (stats['points'] ?? 0).toString(),
-                          label: 'Points Today',
+                          label: l10n.profilePointsToday,
                           color: AppTheme.pink,
                           icon: LucideIcons.award,
                         ),
                         _StatColumn(
                           value: (stats['tasks'] ?? 0).toString(),
-                          label: 'Tasks Done',
+                          label: l10n.profileTasksDone,
                           color: AppTheme.success,
                           icon: LucideIcons.checkSquare,
                         ),
@@ -126,12 +158,10 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // Mood Tracker
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    'Track Your Daily Mood',
+                    l10n.profileTrackDailyMood,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -139,29 +169,52 @@ class ProfileScreen extends ConsumerWidget {
                 const _MoodTracker(),
                 const SizedBox(height: 32),
 
-                // Settings Groups
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    'Account',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey),
+                    l10n.profileAccount,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.textSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.surface,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.surface
+                        : AppTheme.lightSurface,
                     borderRadius: BorderRadius.circular(24),
+                    boxShadow: Theme.of(context).brightness == Brightness.dark
+                        ? []
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: Column(
                     children: [
                       _SettingsTile(
                         icon: LucideIcons.user,
-                        title: 'Personal Information',
+                        title: l10n.profilePersonalInformation,
                         onTap: () => context.push('/profile/personal-info'),
+                      ),
+                      Divider(
+                        height: 1,
+                        indent: 60,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppTheme.surfaceHighlight
+                            : AppTheme.lightSurfaceHighlight,
+                      ),
+                      _SettingsTile(
+                        icon: LucideIcons.languages,
+                        title: l10n.profileLanguage,
+                        onTap: () => _showLanguageDialog(context, ref, l10n),
                       ),
                     ],
                   ),
@@ -169,36 +222,50 @@ class ProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    'More',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey),
+                    l10n.profileMore,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.textSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.surface,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.surface
+                        : AppTheme.lightSurface,
                     borderRadius: BorderRadius.circular(24),
+                    boxShadow: Theme.of(context).brightness == Brightness.dark
+                        ? []
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: Column(
                     children: [
                       _SettingsTile(
                         icon: LucideIcons.shield,
-                        title: 'Privacy & Security',
+                        title: l10n.profilePrivacySecurity,
                         onTap: () => context.push('/profile/privacy'),
                       ),
-                      const Divider(
+                      Divider(
                         height: 1,
                         indent: 60,
-                        color: AppTheme.surfaceHighlight,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppTheme.surfaceHighlight
+                            : AppTheme.lightSurfaceHighlight,
                       ),
                       _SettingsTile(
                         icon: LucideIcons.helpCircle,
-                        title: 'Help & Support',
+                        title: l10n.profileHelpSupport,
                         onTap: () => context.push('/profile/help'),
                       ),
                     ],
@@ -212,8 +279,8 @@ class ProfileScreen extends ConsumerWidget {
                     if (context.mounted) context.go('/login');
                   },
                   icon: const Icon(LucideIcons.logOut, color: AppTheme.error),
-                  label: const Text('Sign Out',
-                      style: TextStyle(color: AppTheme.error)),
+                  label: Text(l10n.profileSignOut,
+                      style: const TextStyle(color: AppTheme.error)),
                 ),
                 const SizedBox(height: 40),
               ],
@@ -221,7 +288,7 @@ class ProfileScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
+        error: (e, st) => Center(child: Text(l10n.commonError(e.toString()))),
       ),
     );
   }
@@ -236,6 +303,82 @@ class ProfileScreen extends ConsumerWidget {
           color: Colors.white,
         ),
       ),
+    );
+  }
+
+  void _showLanguageDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        final currentLocale = ref.read(localeProvider);
+        return AlertDialog(
+          backgroundColor: AppTheme.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            l10n.profileSelectLanguage,
+            style: TextStyle(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LanguageOption(
+                label: 'English',
+                languageCode: 'en',
+                isSelected: currentLocale.languageCode == 'en',
+                onTap: () {
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('en'));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+              const SizedBox(height: 8),
+              _LanguageOption(
+                label: 'العربية',
+                languageCode: 'ar',
+                isSelected: currentLocale.languageCode == 'ar',
+                onTap: () {
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('ar'));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+              const SizedBox(height: 8),
+              _LanguageOption(
+                label: 'Español',
+                languageCode: 'es',
+                isSelected: currentLocale.languageCode == 'es',
+                onTap: () {
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('es'));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+              const SizedBox(height: 8),
+              _LanguageOption(
+                label: 'Français',
+                languageCode: 'fr',
+                isSelected: currentLocale.languageCode == 'fr',
+                onTap: () {
+                  ref
+                      .read(localeProvider.notifier)
+                      .setLocale(const Locale('fr'));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -260,7 +403,10 @@ class _StatColumn extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(
+                alpha: Theme.of(context).brightness == Brightness.dark
+                    ? 0.1
+                    : 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -270,12 +416,16 @@ class _StatColumn extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
               ),
         ),
         Text(
           label,
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 10),
+          style: TextStyle(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppTheme.textSecondary
+                : AppTheme.lightTextSecondary,
+            fontSize: 10,
+          ),
         ),
       ],
     );
@@ -287,11 +437,13 @@ class _SettingsTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.onTap,
+    this.trailing,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -299,17 +451,28 @@ class _SettingsTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceHighlight,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppTheme.surfaceHighlight
+              : AppTheme.lightSurfaceHighlight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: AppTheme.primary, size: 20),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+          fontSize: 16,
+        ),
       ),
-      trailing: const Icon(LucideIcons.chevronRight,
-          color: AppTheme.textSecondary, size: 18),
+      trailing: trailing ??
+          Icon(LucideIcons.chevronRight,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.textSecondary
+                  : AppTheme.lightTextSecondary,
+              size: 18),
       onTap: onTap,
     );
   }
@@ -346,9 +509,24 @@ class _MoodTrackerState extends State<_MoodTracker> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.surface
+            : AppTheme.lightSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        boxShadow: Theme.of(context).brightness == Brightness.dark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.05)
+              : AppTheme.lightSurfaceHighlight,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -361,7 +539,7 @@ class _MoodTrackerState extends State<_MoodTracker> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? _colors[index].withOpacity(0.2)
+                    ? _colors[index].withValues(alpha: 0.2)
                     : Colors.transparent,
                 shape: BoxShape.circle,
                 border: isSelected
@@ -376,6 +554,168 @@ class _MoodTrackerState extends State<_MoodTracker> {
             ),
           );
         }),
+      ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  const _LanguageOption({
+    required this.label,
+    required this.languageCode,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String languageCode;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primary.withValues(alpha: 0.15)
+              : (Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.surfaceHighlight
+                  : AppTheme.lightSurfaceHighlight),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? AppTheme.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(
+              languageCode == 'ar'
+                  ? '🇸🇦'
+                  : languageCode == 'es'
+                      ? '🇪🇸'
+                      : languageCode == 'fr'
+                          ? '🇫🇷'
+                          : '🇬🇧',
+              style: const TextStyle(fontSize: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected
+                      ? AppTheme.primary
+                      : (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : AppTheme.lightText),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DayNightToggle extends ConsumerWidget {
+  const _DayNightToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
+    return GestureDetector(
+      onTap: () => ref.read(themeModeProvider.notifier).toggleTheme(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 76,
+        height: 38,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: isDark
+              ? const LinearGradient(
+                  colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : const LinearGradient(
+                  colors: [Color(0xFFBAE6FD), Color(0xFF60A5FA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            if (isDark)
+              ...List.generate(3, (i) => _ToggleDecoration(i)),
+            
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.elasticOut,
+              alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isDark ? LucideIcons.moon : LucideIcons.sun,
+                  size: 18,
+                  color: isDark ? const Color(0xFF1E293B) : Colors.orange,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleDecoration extends StatelessWidget {
+  final int index;
+  const _ToggleDecoration(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: index * 15.0 + 10,
+      top: (index % 2) * 5.0 + 10,
+      child: Container(
+        width: 2,
+        height: 2,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

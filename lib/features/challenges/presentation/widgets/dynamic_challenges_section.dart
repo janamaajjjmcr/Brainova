@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/challenge_provider.dart';
 import 'challenge_card.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class DynamicChallengesSection extends ConsumerWidget {
   const DynamicChallengesSection({super.key});
@@ -22,12 +23,12 @@ class DynamicChallengesSection extends ConsumerWidget {
             child: Column(
               children: [
                 Icon(LucideIcons.frown,
-                    color: AppTheme.textSecondary.withOpacity(0.5), size: 48),
+                    color: AppTheme.textSecondary.withValues(alpha: 0.5), size: 48),
                 const SizedBox(height: 12),
-                const Text(
-                  "No active challenges yet.\nAdmin hasn't created any.",
+                Text(
+                  AppLocalizations.of(context).challengesNone,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppTheme.textSecondary),
+                  style: const TextStyle(color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -59,7 +60,7 @@ class DynamicChallengesSection extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Text(
-              'Error loading challenges: $e',
+              AppLocalizations.of(context).commonError(e.toString()),
               style: const TextStyle(color: Colors.redAccent),
               textAlign: TextAlign.center,
             ),

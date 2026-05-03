@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../features/gamification/data/streak_controller.dart';
 import '../../domain/daily_stats_provider.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class BrainRotMeterWidget extends ConsumerStatefulWidget {
-  final int score; // 0 to 100
+  final int score;
 
   const BrainRotMeterWidget({super.key, required this.score});
 
@@ -68,6 +69,7 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final streakUser = ref.watch(streakControllerProvider);
     final dailyStatsAsync = ref.watch(dailyStatsProvider);
     final currentStreak = streakUser?.currentStreak ?? 0;
@@ -77,13 +79,13 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
 
     if (widget.score < 40) {
       meterColor = AppTheme.success;
-      statusText = "Healthy";
+      statusText = l10n.brainRotStatusHealthy;
     } else if (widget.score < 70) {
       meterColor = AppTheme.warning;
-      statusText = "Caution";
+      statusText = l10n.brainRotStatusCaution;
     } else {
       meterColor = AppTheme.error;
-      statusText = "Danger";
+      statusText = l10n.brainRotStatusDanger;
     }
 
     return Container(
@@ -92,10 +94,10 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: meterColor.withOpacity(0.12),
+            color: meterColor.withValues(alpha: 0.12),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -123,9 +125,9 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Brain Rot Meter',
-                      style: TextStyle(
+                    Text(
+                      l10n.brainRotMeterTitle,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -139,7 +141,7 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: meterColor.withOpacity(0.2),
+                    color: meterColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -188,31 +190,30 @@ class _BrainRotMeterWidgetState extends ConsumerState<BrainRotMeterWidget>
               },
             ),
             const SizedBox(height: 32),
-            // Mini Stats Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _MiniStat(
-                  label: 'Current Streak',
-                  value: '$currentStreak days',
+                  label: l10n.brainRotCurrentStreak,
+                  value: '$currentStreak ${l10n.homeDaysLabel}',
                   icon: Icons.local_fire_department,
                   color: AppTheme.warning,
                 ),
                 dailyStatsAsync.when(
                   data: (stats) => _MiniStat(
-                    label: 'Mind Resets',
+                    label: l10n.brainRotMindResets,
                     value: (stats['resets'] ?? 0).toString(),
                     icon: Icons.emoji_events,
                     color: AppTheme.success,
                   ),
-                  loading: () => const _MiniStat(
-                    label: 'Mind Resets',
+                  loading: () => _MiniStat(
+                    label: l10n.brainRotMindResets,
                     value: '...',
                     icon: Icons.emoji_events,
                     color: AppTheme.success,
                   ),
-                  error: (_, __) => const _MiniStat(
-                    label: 'Mind Resets',
+                  error: (_, __) => _MiniStat(
+                    label: l10n.brainRotMindResets,
                     value: '!',
                     icon: Icons.emoji_events,
                     color: AppTheme.success,
@@ -296,30 +297,22 @@ class _LiquidPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final radius = size.width / 2;
     final center = Offset(radius, radius);
-
-    // OUTER GLOW
     final glowPaint = Paint()
-      ..color = color.withOpacity(0.35)
+      ..color = color.withValues(alpha: 0.35)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 28);
 
     canvas.drawCircle(center, radius - 4, glowPaint);
-
-    // BORDER
     final borderPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
       ..color = Colors.white24;
 
     canvas.drawCircle(center, radius - 3, borderPaint);
-
-    // CLIP
     final clipPath = Path()
       ..addOval(Rect.fromCircle(center: center, radius: radius - 6));
 
     canvas.save();
     canvas.clipPath(clipPath);
-
-    // LIQUID WAVE
     const waveHeight = 14.0;
     final baseHeight = size.height * (1 - progress);
 
@@ -341,16 +334,14 @@ class _LiquidPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          color.withOpacity(0.95),
-          color.withOpacity(0.75),
-          color.withOpacity(0.6),
+          color.withValues(alpha: 0.95),
+          color.withValues(alpha: 0.75),
+          color.withValues(alpha: 0.6),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     canvas.drawPath(wavePath, liquidPaint);
-
-    // PARTICLES
-    final particlePaint = Paint()..color = Colors.white.withOpacity(0.35);
+    final particlePaint = Paint()..color = Colors.white.withValues(alpha: 0.35);
 
     final random = Random(1);
     for (int i = 0; i < 18; i++) {
@@ -369,15 +360,13 @@ class _LiquidPainter extends CustomPainter {
         );
       }
     }
-
-    // GLASS REFLECTION
     final reflectionPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withOpacity(0.35),
-          Colors.white.withOpacity(0.08),
+          Colors.white.withValues(alpha: 0.35),
+          Colors.white.withValues(alpha: 0.08),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));

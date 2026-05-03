@@ -58,7 +58,6 @@ class ChallengeRepository {
     }
 
     try {
-      // 1. Check if the user is in the activeUsers array of the main challenge doc
       final cSnap = await challengeDoc(challengeId).get();
       final cData = cSnap.data();
       final activeUsers = (cData?['activeUsers'] as List?) ?? [];
@@ -67,8 +66,6 @@ class ChallengeRepository {
         print("DEBUG: User $uid not in activeUsers list");
         return const ChallengeUserStatus(joined: false, endTime: null);
       }
-
-      // 2. If present, fetch the specific endTime from the participant's doc
       final snap = await participantDoc(challengeId).get();
       if (!snap.exists) {
         print("DEBUG: Participant doc missing despite being in activeUsers");

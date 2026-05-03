@@ -17,10 +17,6 @@ class ActivityRepository {
 
   ActivityRepository();
 
-  // ------------------------------------------------------------
-  // PERMISSION HANDLING
-  // ------------------------------------------------------------
-
   Future<bool> checkRealDataAvailability() async {
     final hasPermission = await _usageStats.hasPermission();
     _useRealData = hasPermission;
@@ -33,19 +29,11 @@ class ActivityRepository {
     await _usageStats.openUsageSettings();
   }
 
-  // ------------------------------------------------------------
-  // ADD MANUAL ACTIVITY (Mock)
-  // ------------------------------------------------------------
-
   Future<void> addActivity(ActivityLogModel activity) async {
     await Future.delayed(const Duration(milliseconds: 200));
     _logs.add(activity);
     debugPrint("Manual Activity Logged: ${activity.type.name}");
   }
-
-  // ------------------------------------------------------------
-  // GET RECENT ACTIVITIES
-  // ------------------------------------------------------------
 
   Future<List<ActivityLogModel>> getRecentActivities(
     String uid, {
@@ -53,8 +41,6 @@ class ActivityRepository {
     bool includeAuto = true,
   }) async {
     List<ActivityLogModel> allActivities = [];
-
-    // 1. Fetch from Firestore
     try {
       final snapshot = await _firestore
           .collection('activities')
@@ -69,7 +55,6 @@ class ActivityRepository {
       allActivities.addAll(firestoreActivities);
     } catch (e) {
       debugPrint("Firestore fetch error: $e");
-      // Fallback: Fetch without ordering if index is missing
       try {
         final snapshot = await _firestore
             .collection('activities')
@@ -83,8 +68,6 @@ class ActivityRepository {
         debugPrint("Firestore fallback fetch error: $innerE");
       }
     }
-
-    // 2. Fetch real Android usage stats
     if (_useRealData) {
       try {
         final now = DateTime.now();
@@ -96,18 +79,12 @@ class ActivityRepository {
         debugPrint("Real usage fetch error: $e");
       }
     }
-
-    // 3. Add local cache activities
     allActivities.addAll(_logs.where((log) => log.uid == uid));
-
-    // Remove duplicates by ID (in case Firestore and local overlap)
     final Map<String, ActivityLogModel> uniqueMap = {};
     for (var act in allActivities) {
       uniqueMap[act.id] = act;
     }
     allActivities = uniqueMap.values.toList();
-
-    // Sort newest first
     allActivities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     if (!includeAuto) {
@@ -117,10 +94,6 @@ class ActivityRepository {
 
     return allActivities.take(limit).toList();
   }
-
-  // ------------------------------------------------------------
-  // REAL USAGE DATA
-  // ------------------------------------------------------------
 
   Future<List<ActivityLogModel>> _getRealActivities(
       String uid, DateTime startTime, DateTime endTime) async {
@@ -145,10 +118,6 @@ class ActivityRepository {
     }).toList();
   }
 
-  // ------------------------------------------------------------
-  // BRAIN ROT CALCULATIONS
-  // ------------------------------------------------------------
-
   Future<Map<String, dynamic>> getDailyStats(String uid) async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
@@ -161,7 +130,6 @@ class ActivityRepository {
     int screenTimeSeconds = 0;
 
     for (var activity in activities) {
-      // Screen time from real usage (IDs starting with usage_)
       if (activity.id.startsWith('usage_')) {
         final packageName = activity.metadata?['packageName'] as String?;
         if (packageName != null && !_isSystemApp(packageName)) {
@@ -171,7 +139,6 @@ class ActivityRepository {
 
       if (activity.type == ActivityType.mindReset ||
           activity.type == ActivityType.rewire) {
-        // Points were stored as negative impact in logActivity
         points += -activity.impactScore;
         totalTasks++;
         if (activity.type == ActivityType.mindReset) {
@@ -182,7 +149,7 @@ class ActivityRepository {
 
     return {
       'points': points,
-      'sessions': resetSessions, // For Profile Screen backwards compatibility
+      'sessions': resetSessions,
       'resets': resetSessions,
       'tasks': totalTasks,
       'screenTimeSeconds': screenTimeSeconds,
@@ -201,9 +168,6 @@ class ActivityRepository {
         .take(limit)
         .toList();
   }
-  // ------------------------------------------------------------
-// GET ACTIVITIES IN TIME RANGE (Rolling 24h Support)
-// ------------------------------------------------------------
 
   Future<List<ActivityLogModel>> getActivitiesInRange(
     String uid,
@@ -213,10 +177,7 @@ class ActivityRepository {
     debugPrint(
         "DEBUG: ActivityRepository getActivitiesInRange: uid=$uid, _useRealData=$_useRealData");
     List<ActivityLogModel> allActivities = [];
-
-    // 1. Fetch from Firestore
     try {
-      // Fetch only by UID to avoid composite index error (uid == X && timestamp >= Y)
       final snapshot = await _firestore
           .collection('activities')
           .where('uid', isEqualTo: uid)
@@ -233,8 +194,6 @@ class ActivityRepository {
     } catch (e) {
       debugPrint("Firestore fetch error: $e");
     }
-
-    // 2. Real usage (already limited to 24h from UsageStats)
     if (_useRealData) {
       try {
         final realActivities = await _getRealActivities(uid, start, end);
@@ -243,18 +202,12 @@ class ActivityRepository {
         debugPrint("Real usage fetch error: $e");
       }
     }
-
-    // 3. Manual mock activities (for testing)
     allActivities.addAll(_logs.where((log) => log.uid == uid));
-
-    // Remove duplicates by ID (overlap between Firestore and local cache)
     final Map<String, ActivityLogModel> uniqueMap = {};
     for (var act in allActivities) {
       uniqueMap[act.id] = act;
     }
     final uniqueActivities = uniqueMap.values.toList();
-
-    // Filter by time range (doubly sure)
     final filtered = uniqueActivities.where((activity) {
       final isMatch =
           activity.timestamp.isAfter(start) && !activity.timestamp.isAfter(end);
@@ -267,16 +220,10 @@ class ActivityRepository {
 
       return isMatch;
     }).toList();
-
-    // Sort newest first
     filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     return filtered;
   }
-
-  // ------------------------------------------------------------
-  // WEEKLY BREAKDOWN (Pie Chart Support)
-  // ------------------------------------------------------------
 
   Future<Map<ActivityType, double>> getWeeklyBreakdown(String uid) async {
     final now = DateTime.now();
@@ -302,8 +249,6 @@ class ActivityRepository {
     }
 
     if (totalMinutes == 0) return {};
-
-    // Convert to percentages (0.0 to 1.0)
     return categoryMinutes.map((type, minutes) {
       return MapEntry(type, minutes / totalMinutes);
     });
@@ -329,22 +274,14 @@ class ActivityRepository {
       notes: notes,
       metadata: metadata,
     );
-
-    // 1. Add to Firestore
     try {
       await _firestore.collection('activities').doc(activity.id).set(activity.toMap());
       debugPrint("Activity logged to Firestore: ${type.name}");
     } catch (e) {
       debugPrint("Firestore log error: $e");
     }
-
-    // 2. Add to local cache for immediate UI updates
     _logs.add(activity);
   }
-
-  // ------------------------------------------------------------
-  // TESTING HELPERS
-  // ------------------------------------------------------------
 
   bool _isSystemApp(String packageName) {
     final p = packageName.toLowerCase();
@@ -354,7 +291,7 @@ class ActivityRepository {
         p.contains('providers') ||
         p.contains('settings') ||
         p.contains('google.android.gms') ||
-        p.contains('brainova'); // Exclude our own app if desired
+        p.contains('brainova');
   }
 
   void clearMockData() {

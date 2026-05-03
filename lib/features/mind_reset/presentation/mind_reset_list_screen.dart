@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../data/mind_reset_repository.dart';
 import '../data/mind_reset_model.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class MindResetListScreen extends ConsumerWidget {
   const MindResetListScreen({super.key});
@@ -44,10 +45,9 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final Gradient gradient =
         activity.cardGradient ?? _getGradientForType(activity.type);
-
-    // Safely get first color for shadow
     Color shadowColor = Colors.transparent;
     if (gradient is LinearGradient && gradient.colors.isNotEmpty) {
       shadowColor = gradient.colors.first;
@@ -62,7 +62,7 @@ class _ActivityCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: shadowColor.withOpacity(0.3),
+              color: shadowColor.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -77,7 +77,7 @@ class _ActivityCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -90,13 +90,13 @@ class _ActivityCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(children: [
                     const Icon(LucideIcons.zap, size: 12, color: Colors.white),
                     const SizedBox(width: 4),
-                    Text('-${activity.pointsReward} Rot',
+                    Text(l10n.mindResetRotLabel(activity.pointsReward),
                         style: const TextStyle(
                           fontSize: 11,
                           color: Colors.white,
@@ -108,7 +108,7 @@ class _ActivityCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              activity.title,
+              _getLocalizedTitle(activity.id, l10n),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -117,9 +117,9 @@ class _ActivityCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              activity.description,
+              _getLocalizedDesc(activity.id, l10n),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -128,12 +128,12 @@ class _ActivityCard extends StatelessWidget {
             Row(children: [
               _Tag(
                 icon: LucideIcons.clock,
-                text: '${(activity.durationSeconds / 60).round()} min',
+                text: l10n.mindResetMin((activity.durationSeconds / 60).round()),
               ),
               const SizedBox(width: 8),
               _Tag(
                 icon: _getIconForType(activity.type),
-                text: _getLabelForType(activity.type),
+                text: _getLabelForType(activity.type, l10n),
               ),
             ]),
           ],
@@ -172,18 +172,42 @@ class _ActivityCard extends StatelessWidget {
     }
   }
 
-  String _getLabelForType(MindResetType type) {
+  String _getLabelForType(MindResetType type, AppLocalizations l10n) {
     switch (type) {
       case MindResetType.breathing:
-        return 'Breathing';
+        return l10n.mindResetBreathing;
       case MindResetType.audio:
-        return 'Audio';
+        return l10n.mindResetAudio;
       case MindResetType.stretch:
-        return 'Stretch';
+        return l10n.mindResetStretch;
       case MindResetType.journaling:
-        return 'Journaling';
+        return l10n.mindResetJournaling;
       case MindResetType.meditation:
-        return 'Meditation';
+        return l10n.mindResetMeditation;
+    }
+  }
+
+  String _getLocalizedTitle(String id, AppLocalizations l10n) {
+    switch (id) {
+      case '1': return l10n.mindResetTitle1;
+      case '2': return l10n.mindResetTitle2;
+      case '3': return l10n.mindResetTitle3;
+      case '4': return l10n.mindResetTitle4;
+      case '5': return l10n.mindResetTitle5;
+      case '6': return l10n.mindResetTitle6;
+      default: return activity.title;
+    }
+  }
+
+  String _getLocalizedDesc(String id, AppLocalizations l10n) {
+    switch (id) {
+      case '1': return l10n.mindResetDesc1;
+      case '2': return l10n.mindResetDesc2;
+      case '3': return l10n.mindResetDesc3;
+      case '4': return l10n.mindResetDesc4;
+      case '5': return l10n.mindResetDesc5;
+      case '6': return l10n.mindResetDesc6;
+      default: return activity.description;
     }
   }
 }
@@ -199,7 +223,7 @@ class _Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
+        color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(children: [

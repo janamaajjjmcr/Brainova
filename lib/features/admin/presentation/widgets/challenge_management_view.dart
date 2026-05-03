@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:brainova/l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -20,9 +22,9 @@ class ChallengeManagementView extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Active Challenges',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).adminActiveChallenges,
+                style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary),
@@ -30,7 +32,7 @@ class ChallengeManagementView extends ConsumerWidget {
               ElevatedButton.icon(
                 onPressed: () => showChallengeDialog(context, ref),
                 icon: const Icon(LucideIcons.plus, size: 18),
-                label: const Text('New Challenge'),
+                label: Text(AppLocalizations.of(context).adminNewChallenge),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   shape: RoundedRectangleBorder(
@@ -79,22 +81,22 @@ class ChallengeManagementView extends ConsumerWidget {
         builder: (context, setState) => AlertDialog(
           backgroundColor: AppTheme.surface,
           title:
-              Text(challenge == null ? 'Create Challenge' : 'Edit Challenge'),
+              Text(challenge == null ? AppLocalizations.of(context).adminCreateChallenge : AppLocalizations.of(context).adminEditChallenge),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                     controller: titleController,
-                    decoration: const InputDecoration(labelText: 'Title')),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context).adminChallengeTitle)),
                 const SizedBox(height: 16),
                 TextField(
                     controller: descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context).adminChallengeDesc),
                     maxLines: 3),
                 const SizedBox(height: 16),
                 ListTile(
-                  title: const Text('Start Date'),
+                  title: Text(AppLocalizations.of(context).adminChallengeStartDate),
                   subtitle: Text(startDate.toString().split(' ')[0]),
                   trailing: const Icon(LucideIcons.calendar),
                   onTap: () async {
@@ -109,7 +111,7 @@ class ChallengeManagementView extends ConsumerWidget {
                   },
                 ),
                 ListTile(
-                  title: const Text('End Date'),
+                  title: Text(AppLocalizations.of(context).adminChallengeEndDate),
                   subtitle: Text(endDate.toString().split(' ')[0]),
                   trailing: const Icon(LucideIcons.calendar),
                   onTap: () async {
@@ -127,24 +129,24 @@ class ChallengeManagementView extends ConsumerWidget {
                 TextField(
                     controller: durationController,
                     decoration:
-                        const InputDecoration(labelText: 'Duration (Days)'),
+                        InputDecoration(labelText: AppLocalizations.of(context).adminChallengeDuration),
                     keyboardType: TextInputType.number),
                 const SizedBox(height: 16),
                 TextField(
                     controller: pointsController,
                     decoration:
-                        const InputDecoration(labelText: 'Points Reward'),
+                        InputDecoration(labelText: AppLocalizations.of(context).adminChallengePoints),
                     keyboardType: TextInputType.number),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: selectedCategory,
-                  decoration: const InputDecoration(labelText: 'Category'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).adminChallengeCategory),
                   dropdownColor: AppTheme.surface,
                   items:
                       ['Dopamine Fast', 'Mental Reset', 'Physical', 'General']
                           .map((e) => DropdownMenuItem(
                                 value: e,
-                                child: Text(e,
+                                child: Text(_getLocalizedCategory(e, AppLocalizations.of(context)),
                                     style: const TextStyle(
                                         color: AppTheme.textPrimary)),
                               ))
@@ -210,7 +212,7 @@ class _ChallengeItem extends ConsumerWidget {
         title: Text(challenge['title'],
             style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(
-          '${challenge['duration']} Days • ${challenge['points']} Points',
+          '${AppLocalizations.of(context).challengeDays(challenge['duration'])} • ${AppLocalizations.of(context).challengePointsLabel(challenge['points'])}',
           style: const TextStyle(color: AppTheme.textSecondary),
         ),
         trailing: Row(
@@ -253,3 +255,18 @@ final challengesStreamProvider =
     StreamProvider<List<Map<String, dynamic>>>((ref) {
   return ref.read(adminRepositoryProvider).watchChallenges();
 });
+
+String _getLocalizedCategory(String category, AppLocalizations l10n) {
+  switch (category) {
+    case 'Dopamine Fast':
+      return l10n.categoryDopamineFast;
+    case 'Mental Reset':
+      return l10n.categoryMentalReset;
+    case 'Physical':
+      return l10n.categoryPhysical;
+    case 'General':
+      return l10n.categoryGeneral;
+    default:
+      return category;
+  }
+}

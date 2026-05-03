@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/challenge_model.dart';
 import '../providers/challenge_provider.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class ChallengeCard extends ConsumerWidget {
   final Challenge challenge;
@@ -25,6 +26,7 @@ class ChallengeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final challengeId = challenge.id;
 
     final state = ref.watch(challengeControllerProvider(challengeId));
@@ -40,10 +42,10 @@ class ChallengeCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             blurRadius: 30,
             spreadRadius: -10,
           ),
@@ -52,7 +54,7 @@ class ChallengeCard extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            challenge.title,
+            _getLocalizedTitle(challengeId, challenge.title, l10n),
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -61,7 +63,7 @@ class ChallengeCard extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            "${challenge.duration} Days • ${challenge.description}",
+            "${l10n.challengeDays(challenge.duration)} • ${_getLocalizedDesc(challengeId, challenge.description, l10n)}",
             style: const TextStyle(color: AppTheme.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -83,7 +85,7 @@ class ChallengeCard extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        isCompleted ? "DONE" : _format(remaining),
+                        isCompleted ? l10n.challengeDone : _format(remaining),
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -92,7 +94,7 @@ class ChallengeCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${(_progress(remaining) * 100).toInt()}% Done",
+                        "${(_progress(remaining) * 100).toInt()}${l10n.challengeDonePercent((_progress(remaining) * 100).toInt()).split((_progress(remaining) * 100).toInt().toString()).last}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -109,7 +111,7 @@ class ChallengeCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -119,7 +121,7 @@ class ChallengeCard extends ConsumerWidget {
                       size: 18, color: Colors.orangeAccent),
                   const SizedBox(width: 8),
                   Text(
-                    "🔥 ${state.participants} People Joined",
+                    "🔥 ${l10n.challengePeopleJoined(state.participants)}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -144,7 +146,7 @@ class ChallengeCard extends ConsumerWidget {
                               .join(Duration(days: challenge.duration))),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: joined
-                        ? Colors.white.withOpacity(0.1)
+                        ? Colors.white.withValues(alpha: 0.1)
                         : AppTheme.primary,
                     foregroundColor: joined ? Colors.white70 : Colors.white,
                     minimumSize: const Size(double.infinity, 54),
@@ -154,10 +156,10 @@ class ChallengeCard extends ConsumerWidget {
                   ),
                   child: Text(
                     !joined
-                        ? "Join Challenge"
+                        ? l10n.challengeJoin
                         : isCompleted
-                            ? "Completed"
-                            : "Challenge Active",
+                            ? l10n.challengeCompleted
+                            : l10n.challengeActive,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -170,9 +172,9 @@ class ChallengeCard extends ConsumerWidget {
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.redAccent,
                     ),
-                    child: const Text(
-                      "Leave Challenge",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: Text(
+                      l10n.challengeLeave,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -186,20 +188,21 @@ class ChallengeCard extends ConsumerWidget {
 
   void _showLeaveConfirmation(
       BuildContext context, ChallengeController controller) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        title: const Text("Leave Challenge",
-            style: TextStyle(color: Colors.white)),
-        content: const Text(
-          "Are you sure you want to leave the challenge?",
-          style: TextStyle(color: AppTheme.textSecondary),
+        title: Text(l10n.challengeLeaveTitle,
+            style: const TextStyle(color: Colors.white)),
+        content: Text(
+          l10n.challengeLeaveBody,
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text(l10n.challengeCancel),
           ),
           TextButton(
             onPressed: () {
@@ -207,11 +210,50 @@ class ChallengeCard extends ConsumerWidget {
               controller.leave();
             },
             child:
-                const Text("Leave", style: TextStyle(color: Colors.redAccent)),
+                Text(l10n.challengeLeave, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
     );
+  }
+
+  String _getLocalizedTitle(String id, String original, AppLocalizations l10n) {
+    switch (id) {
+      case 'morning_meditation':
+        return l10n.challengeTitleMorningMeditation;
+      case 'digital_sunset':
+        return l10n.challengeTitleDigitalSunset;
+      case 'social_media_fast':
+        return l10n.challengeTitleSocialMediaFast;
+      case 'deep_work':
+        return l10n.challengeTitleDeepWork;
+      default:
+
+        if (original.contains("Morning Meditation")) return l10n.challengeTitleMorningMeditation;
+        if (original.contains("Digital Sunset")) return l10n.challengeTitleDigitalSunset;
+        if (original.contains("Social Media Fast")) return l10n.challengeTitleSocialMediaFast;
+        if (original.contains("Deep Work")) return l10n.challengeTitleDeepWork;
+        return original;
+    }
+  }
+
+  String _getLocalizedDesc(String id, String original, AppLocalizations l10n) {
+    switch (id) {
+      case 'morning_meditation':
+        return l10n.challengeDescMorningMeditation;
+      case 'digital_sunset':
+        return l10n.challengeDescDigitalSunset;
+      case 'social_media_fast':
+        return l10n.challengeDescSocialMediaFast;
+      case 'deep_work':
+        return l10n.challengeDescDeepWork;
+      default:
+        if (original.contains("Morning Meditation")) return l10n.challengeDescMorningMeditation;
+        if (original.contains("Digital Sunset")) return l10n.challengeDescDigitalSunset;
+        if (original.contains("Social Media Fast")) return l10n.challengeDescSocialMediaFast;
+        if (original.contains("Deep Work")) return l10n.challengeDescDeepWork;
+        return original;
+    }
   }
 }
 
@@ -227,7 +269,7 @@ class _CirclePainter extends CustomPainter {
     final radius = size.width / 2 - strokeWidth;
 
     final backgroundPaint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
+      ..color = Colors.white.withValues(alpha: 0.05)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 

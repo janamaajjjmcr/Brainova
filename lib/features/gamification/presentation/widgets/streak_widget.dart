@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../data/streak_controller.dart';
 
 class StreakWidget extends ConsumerWidget {
@@ -9,6 +10,7 @@ class StreakWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(streakControllerProvider);
     final streak = user?.currentStreak ?? 0;
 
@@ -17,15 +19,15 @@ class StreakWidget extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.orange.withOpacity(0.1),
-            Colors.red.withOpacity(0.05),
+            Colors.orange.withValues(alpha: 0.1),
+            Colors.red.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.orange.withOpacity(0.2),
+          color: Colors.orange.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -34,7 +36,7 @@ class StreakWidget extends ConsumerWidget {
         children: [
           Icon(
             LucideIcons.flame,
-            color: streak > 0 ? Colors.orange : Colors.grey.withOpacity(0.5),
+            color: streak > 0 ? Colors.orange : Colors.grey.withValues(alpha: 0.5),
             size: 28,
           )
               .animate(
@@ -48,7 +50,7 @@ class StreakWidget extends ConsumerWidget {
               )
               .shimmer(
                 duration: 1500.ms,
-                color: Colors.yellow.withOpacity(0.3),
+                color: Colors.yellow.withValues(alpha: 0.3),
               ),
           const SizedBox(width: 12),
           Column(
@@ -56,7 +58,7 @@ class StreakWidget extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$streak Day Streak',
+                l10n.streakDayStreak(streak),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -66,7 +68,7 @@ class StreakWidget extends ConsumerWidget {
               ),
               if (streak > 0)
                 Text(
-                  'Keep it up!',
+                  l10n.streakKeepItUp,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.orange.shade400,

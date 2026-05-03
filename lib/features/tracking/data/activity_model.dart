@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum ActivityType {
-  social, // formerly scrolling
-  entertainment, // passive content
-  neutral, // browsers, tools
-  learning, // productive apps
-  junk, // games, addictive apps
+  social,
+  entertainment,
+  neutral,
+  learning,
+  junk,
   mindReset,
   rewire,
 }
@@ -16,9 +16,9 @@ class ActivityLogModel {
   final ActivityType type;
   final DateTime timestamp;
   final int durationSeconds;
-  final int impactScore; // The calculated +/- change to brain rot
+  final int impactScore;
   final String? notes;
-  final Map<String, dynamic>? metadata; // Add this for app tracking
+  final Map<String, dynamic>? metadata;
 
   ActivityLogModel({
     required this.id,
@@ -66,15 +66,11 @@ class ActivityLogModel {
           : null,
     );
   }
-
-  // Parse from JSON (for usage stats)
   static ActivityLogModel fromUsageStats(Map<String, dynamic> json, String uid,
       {DateTime? timestamp}) {
     final packageName = json['packageName'] as String;
     final totalTimeInForeground = json['totalTimeInForeground'] as int;
     final now = timestamp ?? DateTime.now();
-
-    // Determine activity type based on package name
     final activityType = _getActivityType(packageName);
     final impactScore = _calculateImpact(activityType, totalTimeInForeground);
 
@@ -84,7 +80,7 @@ class ActivityLogModel {
       type: activityType,
       timestamp: now,
       durationSeconds:
-          (totalTimeInForeground / 1000).round(), // Convert ms to seconds
+          (totalTimeInForeground / 1000).round(),
       impactScore: impactScore,
       notes: 'Auto-tracked from $packageName',
       metadata: {
@@ -94,8 +90,6 @@ class ActivityLogModel {
       },
     );
   }
-
-  // Determine activity type from package name
   static ActivityType _getActivityType(String packageName) {
     final pkg = packageName.toLowerCase();
 
@@ -170,14 +164,10 @@ class ActivityLogModel {
 
     return ActivityType.neutral;
   }
-
-  // Get friendly app name from package name
   static String _getAppName(String packageName) {
     final parts = packageName.split('.');
     return parts.last;
   }
-
-  // Calculate impact score based on activity type and duration
   static int _calculateImpact(ActivityType type, int durationMs) {
     final minutes = durationMs / 1000 / 60;
 
@@ -204,8 +194,6 @@ class ActivityLogModel {
         return -5;
     }
   }
-
-  // Demo factory constructors
   factory ActivityLogModel.demoScrolling() {
     return ActivityLogModel(
       id: 'demo_1',

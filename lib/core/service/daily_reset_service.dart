@@ -9,16 +9,12 @@ final dailyResetServiceProvider = Provider<DailyResetService>((ref) {
   );
 });
 
-/// Checks once per app start whether the calendar day has changed since the
-/// last recorded reset, and if so, zeroes out all "daily" counters on the
-/// user document in Firestore.
 class DailyResetService {
   final UserRepository _userRepo;
   final AuthRepository _authRepo;
 
   DailyResetService(this._userRepo, this._authRepo);
 
-  /// Call this early in the app lifecycle (e.g. in main.dart or the root widget).
   Future<void> checkAndResetIfNeeded() async {
     final firebaseUser = _authRepo.currentUser;
     if (firebaseUser == null) {
@@ -34,8 +30,6 @@ class DailyResetService {
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-
-    // Determine if we need a reset
     final lastReset = user.lastDailyResetDate;
     final lastResetDay = lastReset != null
         ? DateTime(lastReset.year, lastReset.month, lastReset.day)

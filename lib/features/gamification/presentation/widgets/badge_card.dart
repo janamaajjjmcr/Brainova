@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../data/models/badge_model.dart';
 import '../../../auth/data/user_model.dart';
 import '../../data/streak_controller.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class BadgeCard extends ConsumerStatefulWidget {
   final BadgeModel badge;
@@ -90,8 +91,9 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
   }
 
   Widget _buildLocked() {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(streakControllerProvider);
-    final progressInfo = _calculateProgress(user);
+    final progressInfo = _calculateProgress(user, l10n);
     final double progress = progressInfo.$1;
     final String progressText = progressInfo.$2;
 
@@ -99,12 +101,12 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
       width: 140,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface.withOpacity(0.6),
+        color: AppTheme.surface.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -113,28 +115,27 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon in a circle (desaturated)
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Icon(
               _getIcon(widget.badge.iconName),
               size: 32,
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            widget.badge.title,
+            _getLocalizedTitle(widget.badge.id, l10n),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: Colors.white.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.4),
               letterSpacing: 0.5,
             ),
           ),
@@ -143,17 +144,16 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
             progressText,
             style: TextStyle(
               fontSize: 10,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
-          // Progress Bar
           Container(
             height: 4,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(2),
             ),
             child: FractionallySizedBox(
@@ -167,7 +167,7 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
                   borderRadius: BorderRadius.circular(2),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF3B82F6).withOpacity(0.3),
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
                       blurRadius: 4,
                       spreadRadius: 1,
                     ),
@@ -181,14 +181,14 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(LucideIcons.lock,
-                  size: 10, color: Colors.white.withOpacity(0.2)),
+                  size: 10, color: Colors.white.withValues(alpha: 0.2)),
               const SizedBox(width: 4),
               Text(
-                "LOCKED",
+                AppLocalizations.of(context).badgeLocked.toUpperCase(),
                 style: TextStyle(
                   fontSize: 8,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   letterSpacing: 1,
                 ),
               ),
@@ -199,11 +199,12 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
     );
   }
 
-  (double, String) _calculateProgress(UserModel? user) {
+  (double, String) _calculateProgress(UserModel? user, AppLocalizations l10n) {
+    final localizedUnit = _getLocalizedUnit(widget.badge.unitLabel, l10n);
     if (user == null) {
       return (
         0.0,
-        "0 / ${widget.badge.conditionValue} ${widget.badge.unitLabel}"
+        "0 / ${widget.badge.conditionValue} $localizedUnit"
       );
     }
 
@@ -239,7 +240,26 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
     }
 
     double percent = target > 0 ? (current / target) : 0.0;
-    return (percent, "$current / $target ${widget.badge.unitLabel}");
+    return (percent, "$current / $target $localizedUnit");
+  }
+
+  String _getLocalizedUnit(String unit, AppLocalizations l10n) {
+    switch (unit.toLowerCase()) {
+      case 'days':
+        return l10n.badgeUnitDays;
+      case 'sessions':
+        return l10n.badgeUnitSessions;
+      case 'tasks':
+        return l10n.badgeUnitTasks;
+      case 'entries':
+        return l10n.badgeUnitEntries;
+      case 'login':
+        return l10n.badgeUnitLogin;
+      case 'completed':
+        return l10n.badgeUnitCompleted;
+      default:
+        return unit;
+    }
   }
 
   int _getProfileProgress(UserModel user) {
@@ -266,16 +286,16 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            colorScheme.primary.withOpacity(0.2),
+            colorScheme.primary.withValues(alpha: 0.2),
             AppTheme.surface,
           ],
         ),
         borderRadius: BorderRadius.circular(28),
         border:
-            Border.all(color: colorScheme.primary.withOpacity(0.4), width: 1.5),
+            Border.all(color: colorScheme.primary.withValues(alpha: 0.4), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.2),
+            color: colorScheme.primary.withValues(alpha: 0.2),
             blurRadius: 20,
             spreadRadius: -5,
           ),
@@ -293,7 +313,7 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.5),
+                  color: colorScheme.primary.withValues(alpha: 0.5),
                   blurRadius: 15,
                   spreadRadius: 2,
                 ),
@@ -307,7 +327,7 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
           ),
           const SizedBox(height: 12),
           Text(
-            widget.badge.title,
+            _getLocalizedTitle(widget.badge.id, AppLocalizations.of(context)),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 14,
@@ -327,12 +347,12 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.2),
+              color: colorScheme.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
             ),
             child: Text(
-              "EARNED",
+              AppLocalizations.of(context).badgeEarned.toUpperCase(),
               style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.bold,
@@ -365,6 +385,27 @@ class _BadgeCardState extends ConsumerState<BadgeCard>
       default:
         return BadgeColorScheme(
             primary: AppTheme.primary, accent: Colors.blueAccent);
+    }
+  }
+
+  String _getLocalizedTitle(String id, AppLocalizations l10n) {
+    switch (id) {
+      case 'welcome':
+        return l10n.badgeTitleWelcome;
+      case 'streak_3':
+        return l10n.badgeTitleStreak3;
+      case 'streak_7':
+        return l10n.badgeTitleStreak7;
+      case 'mind_reset_5':
+        return l10n.badgeTitleMindReset5;
+      case 'streak_30':
+        return l10n.badgeTitleStreak30;
+      case 'profile_complete':
+        return l10n.badgeTitleProfileComplete;
+      case 'content_diet_10':
+        return l10n.badgeTitleContentDiet10;
+      default:
+        return widget.badge.title;
     }
   }
 

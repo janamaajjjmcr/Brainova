@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 
 class BrainovaStartScreen extends StatelessWidget {
   const BrainovaStartScreen({super.key});
@@ -8,7 +9,6 @@ class BrainovaStartScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // BACKGROUND
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -17,26 +17,24 @@ class BrainovaStartScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // BLACK FADE OVERLAY
           Container(
-            color: Colors.black.withOpacity(0.45),
+            color: Colors.black.withValues(alpha: 0.45),
           ),
-
-          // CONTENT
-          const Center(
+          Center(
             child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text(
-                'This is where the actual Brainova app starts!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  height: 1.4,
-                ),
-              ),
+              padding: const EdgeInsets.all(24),
+              child: Builder(builder: (context) {
+                return Text(
+                  AppLocalizations.of(context).brainovaStartMessage,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    height: 1.4,
+                  ),
+                );
+              }),
             ),
           ),
         ],

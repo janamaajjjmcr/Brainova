@@ -27,7 +27,6 @@ class ContentDietRepository {
   ContentDietRepository(this._activityRepo, this._firestore);
 
   Future<void> addEntry(ContentDietEntry entry) async {
-    // Log as activity for persistence and score calculation
     await _activityRepo.logActivity(
       uid: entry.uid,
       type: _mapCategoryToActivityType(entry.category),
@@ -35,8 +34,6 @@ class ContentDietRepository {
       impactScore: _calculateImpactScore(entry.category, entry.minutes),
       notes: entry.notes,
     );
-
-    // 2. Increment global diet count in UserModel
     try {
       await _firestore.collection('users').doc(entry.uid).update({
         'contentDietCount': FieldValue.increment(1),
@@ -48,7 +45,6 @@ class ContentDietRepository {
   }
 
   Future<List<ContentDietEntry>> getRecentEntries(String uid) async {
-    // Use centralized repository to fetch activities
     final activities = await _activityRepo.getRecentActivities(uid,
         limit: 20, includeAuto: false);
 

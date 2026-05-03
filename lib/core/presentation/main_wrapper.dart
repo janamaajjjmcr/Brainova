@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../../features/auth/data/auth_providers.dart';
 
@@ -12,6 +13,7 @@ class MainWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final userProfile = ref.watch(userProfileProvider).valueOrNull;
 
     if (userProfile?.isRestricted == true) {
@@ -36,7 +38,6 @@ class MainWrapper extends ConsumerWidget {
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
-                  // The Background Bar with Curve
                   CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, 80),
                     painter: _NavBarPainter(
@@ -45,7 +46,6 @@ class MainWrapper extends ConsumerWidget {
                       color: AppTheme.surface,
                     ),
                   ),
-                  // The Icons
                   SizedBox(
                     height: 100,
                     child: Row(
@@ -53,7 +53,7 @@ class MainWrapper extends ConsumerWidget {
                         Expanded(
                           child: _NavBarItem(
                             icon: LucideIcons.layoutGrid,
-                            label: 'Diet',
+                            label: l10n.navDiet,
                             isSelected: selectedIndex == 0,
                             onTap: () => _onItemTapped(0, context, isAdmin),
                           ),
@@ -61,7 +61,7 @@ class MainWrapper extends ConsumerWidget {
                         Expanded(
                           child: _NavBarItem(
                             icon: LucideIcons.zap,
-                            label: 'Reset',
+                            label: l10n.navReset,
                             isSelected: selectedIndex == 1,
                             onTap: () => _onItemTapped(1, context, isAdmin),
                           ),
@@ -69,7 +69,7 @@ class MainWrapper extends ConsumerWidget {
                         Expanded(
                           child: _NavBarItem(
                             icon: LucideIcons.home,
-                            label: 'Home',
+                            label: l10n.navHome,
                             isSelected: selectedIndex == 2,
                             onTap: () => _onItemTapped(2, context, isAdmin),
                           ),
@@ -77,7 +77,7 @@ class MainWrapper extends ConsumerWidget {
                         Expanded(
                           child: _NavBarItem(
                             icon: LucideIcons.gamepad2,
-                            label: 'Rewire',
+                            label: l10n.navRewire,
                             isSelected: selectedIndex == 3,
                             onTap: () => _onItemTapped(3, context, isAdmin),
                           ),
@@ -85,7 +85,7 @@ class MainWrapper extends ConsumerWidget {
                         Expanded(
                           child: _NavBarItem(
                             icon: LucideIcons.user,
-                            label: 'Profile',
+                            label: l10n.navProfile,
                             isSelected: selectedIndex == 4,
                             onTap: () => _onItemTapped(4, context, isAdmin),
                           ),
@@ -94,7 +94,7 @@ class MainWrapper extends ConsumerWidget {
                           Expanded(
                             child: _NavBarItem(
                               icon: LucideIcons.shieldCheck,
-                              label: 'Admin',
+                              label: l10n.navAdmin,
                               isSelected: selectedIndex == 5,
                               onTap: () => _onItemTapped(5, context, isAdmin),
                             ),
@@ -107,8 +107,6 @@ class MainWrapper extends ConsumerWidget {
             ),
     );
   }
-
-  // Calculate index based on route
   int _calculateSelectedIndex(BuildContext context, bool isAdmin) {
     final String location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/content-diet')) return 0;
@@ -117,7 +115,7 @@ class MainWrapper extends ConsumerWidget {
     if (location.startsWith('/rewire')) return 3;
     if (location.startsWith('/profile')) return 4;
     if (isAdmin && location.startsWith('/admin')) return 5;
-    return 2; // Default to Home
+    return 2;
   }
 
   void _onItemTapped(int index, BuildContext context, bool isAdmin) {
@@ -180,7 +178,7 @@ class _NavBarItem extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? AppTheme.primary.withOpacity(0.4)
+                        ? AppTheme.primary.withValues(alpha: 0.4)
                         : Colors.transparent,
                     blurRadius: isSelected ? 10 : 0,
                     spreadRadius: 0,
@@ -202,7 +200,7 @@ class _NavBarItem extends StatelessWidget {
               ),
             ],
             if (isSelected)
-              const SizedBox(height: 16), // Spacing for layout stability
+              const SizedBox(height: 16),
           ],
         ),
       ),
@@ -230,39 +228,26 @@ class _NavBarPainter extends CustomPainter {
     final path = Path();
     final itemWidth = size.width / itemCount;
     final center = itemWidth * selectedIndex + (itemWidth / 2);
-
-    // Start
     path.moveTo(0, 0);
-
-    // The Notch
-    // A nice smooth bezier curve
     const double notchDepth = 40;
     const double notchWidth = 70;
-
-    // Left shoulder
     path.lineTo(center - notchWidth / 2 - 10, 0);
-
-    // Curve down
     path.cubicTo(
       center - notchWidth / 2,
-      0, // Control point 1
+      0,
       center - notchWidth / 2,
-      notchDepth, // Control point 2
+      notchDepth,
       center,
-      notchDepth, // Target point (bottom of notch)
+      notchDepth,
     );
-
-    // Curve up
     path.cubicTo(
       center + notchWidth / 2,
-      notchDepth, // Control point 1
+      notchDepth,
       center + notchWidth / 2,
-      0, // Control point 2
+      0,
       center + notchWidth / 2 + 10,
-      0, // Target point
+      0,
     );
-
-    // End
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
@@ -281,6 +266,7 @@ class _NavBarPainter extends CustomPainter {
 class _RestrictedScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Center(
@@ -292,25 +278,25 @@ class _RestrictedScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(LucideIcons.ban,
                     color: AppTheme.error, size: 64),
               ),
               const SizedBox(height: 32),
-              const Text(
-                'Access Restricted',
-                style: TextStyle(
+              Text(
+                l10n.accessRestricted,
+                style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Your account has been restricted by the administrator. Please contact support if you believe this is a mistake.',
+              Text(
+                l10n.accessRestrictedBody,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
               ),
               const SizedBox(height: 48),
               ElevatedButton(
@@ -322,7 +308,7 @@ class _RestrictedScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Log Out'),
+                child: Text(l10n.logOut),
               ),
             ],
           ),

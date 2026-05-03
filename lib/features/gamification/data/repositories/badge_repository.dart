@@ -15,12 +15,9 @@ class BadgeRepository {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  /// Returns a stream of all badges with their current status for the signed-in user.
   Stream<List<BadgeModel>> getBadgesStream() {
     final userId = _userId;
     if (userId == null) return Stream.value([]);
-
-    // We join the master badges collection with the user's earned badges subcollection
     return _firestore
         .collection('badges')
         .snapshots()
@@ -45,7 +42,6 @@ class BadgeRepository {
     });
   }
 
-  /// Unlocks a badge for the user.
   Future<void> unlockBadge(String badgeId) async {
     final userId = _userId;
     if (userId == null) return;
@@ -58,7 +54,7 @@ class BadgeRepository {
 
     final doc = await userBadgeRef.get();
     if (doc.exists && (doc.data()?['isUnlocked'] ?? false)) {
-      return; // Already unlocked
+      return;
     }
 
     await userBadgeRef.set({
@@ -67,9 +63,7 @@ class BadgeRepository {
     }, SetOptions(merge: true));
   }
 
-  /// Seed initial badges if they don't exist
   Future<void> seedInitialBadges() async {
-    // We check and add each badge if it doesn't exist to allow for incremental updates
 
     final badges = [
       {

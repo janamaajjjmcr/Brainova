@@ -24,20 +24,16 @@ class BrainRotService {
 
   BrainRotService(this._activityRepo, this._authRepo, this._userRepo,
       this._notificationService);
-
-  // ===== WEIGHTS =====
   static const double socialWeight = 2.0;
   static const double entertainmentWeight = 1.5;
   static const double neutralWeight = 1.0;
   static const double junkweight = 2.2;
-  static const double learningWeight = -0.5; // Changed to negative to reduce rot
+  static const double learningWeight = -0.5;
 
   static const double normalizationConstant = 1200.0;
-
-  // ===== TODAY'S SCORE (midnight → now) =====
   Future<int> calculateRollingScore(String uid) async {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day); // midnight today
+    final start = DateTime(now.year, now.month, now.day);
 
     final activities =
         await _activityRepo.getActivitiesInRange(uid, start, now);
@@ -105,8 +101,6 @@ class BrainRotService {
     if (scoreValue > 100) scoreValue = 100;
 
     final currentScore = scoreValue.round();
-
-    // Sync daily data to Firestore for Admin Analytics
     final user = await _userRepo.getUser(uid);
     if (user != null) {
       final breakdown = await getCategoryBreakdown(uid, activities: activities);
@@ -115,8 +109,6 @@ class BrainRotService {
         dailyDiet: breakdown,
       ));
     }
-
-    // Trigger notifications based on score changes
     if (_lastScore != null) {
       if (currentScore > _lastScore! && currentScore >= 60) {
         await _notificationService.sendBrainRotWarning(currentScore);
@@ -125,15 +117,12 @@ class BrainRotService {
             _lastScore!, currentScore);
       }
     } else if (currentScore >= 60) {
-      // First time check and score is high
       await _notificationService.sendBrainRotWarning(currentScore);
     }
 
     _lastScore = currentScore;
     return currentScore;
   }
-
-  // ===== TODAY'S CATEGORY BREAKDOWN (midnight → now) =====
   Future<Map<String, double>> getCategoryBreakdown(String uid,
       {List<ActivityLogModel>? activities}) async {
     final List<ActivityLogModel> finalActivities;
@@ -142,7 +131,7 @@ class BrainRotService {
       finalActivities = activities;
     } else {
       final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day); // midnight today
+      final start = DateTime(now.year, now.month, now.day);
       finalActivities =
           await _activityRepo.getActivitiesInRange(uid, start, now);
     }
@@ -204,13 +193,9 @@ class BrainRotService {
       'junk': round((junk / totalMinutes) * 100),
     };
   }
-
-  // ===== COMPLETE REWIRE =====
   Future<void> completeRewire(String taskTitle, {int points = 10}) async {
     final userAuth = _authRepo.currentUser;
     if (userAuth == null) return;
-
-    // Log through repository
     await _activityRepo.logActivity(
       uid: userAuth.uid,
       type: ActivityType.rewire,
@@ -218,8 +203,6 @@ class BrainRotService {
       impactScore: -points,
       notes: taskTitle,
     );
-
-    // Update User Stats
     final user = await _userRepo.getUser(userAuth.uid);
     if (user != null) {
       await _userRepo.updateUser(user.copyWith(
@@ -230,14 +213,10 @@ class BrainRotService {
       ));
     }
   }
-
-  // ===== COMPLETE MIND RESET =====
   Future<void> completeMindReset(String activityTitle,
       {int points = 20, int durationSeconds = 60}) async {
     final userAuth = _authRepo.currentUser;
     if (userAuth == null) return;
-
-    // Log through repository
     await _activityRepo.logActivity(
       uid: userAuth.uid,
       type: ActivityType.mindReset,
@@ -245,8 +224,6 @@ class BrainRotService {
       impactScore: -points,
       notes: activityTitle,
     );
-
-    // Update User Stats
     final user = await _userRepo.getUser(userAuth.uid);
     if (user != null) {
       await _userRepo.updateUser(user.copyWith(

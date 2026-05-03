@@ -33,7 +33,7 @@ class RealityCheckService {
 
   Future<RealityCheckResult> runRealityCheck(String uid) async {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day); // midnight today
+    final start = DateTime(now.year, now.month, now.day);
 
     final activities = await _activityRepo.getActivitiesInRange(
       uid,
@@ -51,8 +51,6 @@ class RealityCheckService {
     for (final activity in activities) {
       final pkg =
           activity.metadata?['packageName']?.toString().toLowerCase() ?? '';
-
-      // Ignore our own app and common launchers/system UI in breakdown
       if (pkg.contains('brainova') ||
           pkg.contains('launcher') ||
           pkg.contains('systemui') ||
@@ -119,8 +117,6 @@ class RealityCheckService {
       "entertainment": round((entertainment / totalMinutes) * 100),
       "neutral": round((neutral / totalMinutes) * 100),
     };
-
-    // Reality Check scoring different from Brain Rot Meter
 
     double stimulationScore =
         junk * 1.2 + social * 1.0 + entertainment * 0.8 + neutral * 0.0;

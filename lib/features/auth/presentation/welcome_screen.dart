@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rive/rive.dart' hide LinearGradient, Image;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../data/auth_providers.dart';
 import '../../../core/utils/input_validator.dart';
 
@@ -89,6 +91,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
   }
 
   Future<void> _signUp() async {
+    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -100,9 +103,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-                'Account created! A verification email has been sent to your inbox.'),
+                l10n.signupSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -111,7 +114,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(content: Text(l10n.commonError(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -139,6 +142,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -150,7 +155,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
               ),
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.45)),
+          Container(color: Colors.black.withValues(alpha: 0.45)),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -166,10 +171,44 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                           scale: _breathing,
                           child: Column(
                             children: [
-                              Image.asset(
-                                'assets/images/logo.png',
-                                width: 80,
-                                height: 80,
+                              SizedBox(
+                                width: 150,
+                                height: 150,
+                                child: RiveAnimation.asset(
+                                  'assets/rive/brainova_logo.riv',
+                                  fit: BoxFit.contain,
+                                  stateMachines: const ['State Machine 1'],
+                                  onInit: (artboard) {
+                                    try {
+                                      (artboard as dynamic).backgroundColor = 0x00000000;
+                                    } catch (_) {}
+                                    try {
+                                      final dynamic ab = artboard;
+                                      if (ab.fills != null) {
+                                        ab.fills.clear();
+                                      }
+                                    } catch (_) {}
+
+                                    artboard.forEachComponent((child) {
+                                      final name = child.name.toLowerCase();
+                                      if (name.contains('bg') ||
+                                          name.contains('background') ||
+                                          name.contains('rectangle') ||
+                                          name.contains('white') ||
+                                          name.contains('box') ||
+                                          name.contains('container') ||
+                                          name.contains('rect') ||
+                                          name.contains('solid') ||
+                                          name.contains('base')) {
+                                        try {
+                                          (child as dynamic).isVisible = false;
+                                          (child as dynamic).opacity = 0.0;
+                                        } catch (_) {}
+                                      }
+                                      debugPrint('Rive Component: ${child.name} (${child.runtimeType})');
+                                    });
+                                  },
+                                ),
                               ),
                               const SizedBox(height: 12),
                               const Text(
@@ -186,14 +225,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         const SizedBox(height: 48),
                         _inputField(
                           controller: _nameController,
-                          hint: 'Name',
+                          hint: l10n.signupFullName,
                           icon: Icons.person_outline,
                           validator: InputValidator.validateName,
                         ),
                         const SizedBox(height: 16),
                         _inputField(
                           controller: _emailController,
-                          hint: 'Email',
+                          hint: l10n.signupEmailHint,
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: InputValidator.validateEmail,
@@ -201,7 +240,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         const SizedBox(height: 16),
                         _inputField(
                           controller: _passwordController,
-                          hint: 'Password',
+                          hint: l10n.signupPasswordHint,
                           icon: Icons.lock_outline,
                           obscure: _obscurePassword,
                           validator: (val) =>
@@ -223,12 +262,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         const SizedBox(height: 16),
                         _inputField(
                           controller: _confirmPasswordController,
-                          hint: 'Confirm Password',
+                          hint: l10n.signupConfirmPassword,
                           icon: Icons.lock_outline,
                           obscure: _obscurePassword,
                           validator: (val) {
                             if (val != _passwordController.text) {
-                              return 'Passwords do not match';
+                              return l10n.signupPasswordMismatch;
                             }
                             return null;
                           },
@@ -278,9 +317,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                             strokeWidth: 2,
                                             color: Colors.black),
                                       )
-                                    : const Text(
-                                        'Sign Up',
-                                        style: TextStyle(
+                                    : Text(
+                                        l10n.signupButton,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
@@ -295,18 +334,18 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                           children: [
                             Expanded(
                               child:
-                                  Divider(color: Colors.white.withOpacity(0.6)),
+                                  Divider(color: Colors.white.withValues(alpha: 0.6)),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
-                                "Or",
-                                style: TextStyle(color: Colors.white70),
+                                l10n.signupOr,
+                                style: const TextStyle(color: Colors.white70),
                               ),
                             ),
                             Expanded(
                               child:
-                                  Divider(color: Colors.white.withOpacity(0.6)),
+                                  Divider(color: Colors.white.withValues(alpha: 0.6)),
                             ),
                           ],
                         ),
@@ -328,7 +367,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: Colors.white.withValues(alpha: 0.5),
                                         blurRadius: _googleGlow.value,
                                       ),
                                       const BoxShadow(
@@ -346,9 +385,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                         height: 22,
                                       ),
                                       const SizedBox(width: 12),
-                                      const Text(
-                                        "Continue with Google",
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.signupContinueWithGoogle,
+                                        style: const TextStyle(
                                           color: Colors.black87,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
@@ -365,15 +404,15 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "Have an account? ",
-                              style: TextStyle(color: Colors.white70),
+                            Text(
+                              l10n.signupAlreadyHaveAccount,
+                              style: const TextStyle(color: Colors.white70),
                             ),
                             GestureDetector(
                               onTap: () => context.pushReplacement('/login'),
-                              child: const Text(
-                                "Log in",
-                                style: TextStyle(
+                              child: Text(
+                                l10n.signupLogIn,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,

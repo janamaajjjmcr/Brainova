@@ -7,12 +7,10 @@ import '../data/streak_controller.dart';
 
 final badgeServiceProvider = Provider<BadgeService>((ref) {
   final service = BadgeService(ref);
-  // Initialize the service by listening to relevant providers
   service._initialize();
   return service;
 });
 
-/// A provider to notify the UI when a badge is unlocked for celebration
 final lastUnlockedBadgeProvider = StateProvider<BadgeModel?>((ref) => null);
 
 class BadgeService {
@@ -22,26 +20,19 @@ class BadgeService {
 
   List<BadgeModel> _allBadges = [];
   UserModel? _currentUser;
-
-  // Celebration Queue
   final List<BadgeModel> _celebrationQueue = [];
   bool _isShowingCelebration = false;
 
   BadgeService(this._ref);
 
   void _initialize() {
-    // Seed badges automatically on first load
     _ref.read(badgeRepositoryProvider).seedInitialBadges();
-
-    // Listen to user stats
     _ref.listen<UserModel?>(streakControllerProvider, (previous, next) {
       if (next != null) {
         _currentUser = next;
         _checkConditions();
       }
     }, fireImmediately: true);
-
-    // Listen to all badges to keep a local cache
     _badgesSubscription =
         _ref.read(badgeRepositoryProvider).getBadgesStream().listen((badges) {
       _allBadges = badges;
@@ -49,7 +40,6 @@ class BadgeService {
     });
   }
 
-  /// The main logic to check all locked badges against user stats
   void _checkConditions() {
     final user = _currentUser;
     if (user == null || _allBadges.isEmpty) return;
@@ -61,11 +51,11 @@ class BadgeService {
 
       switch (badge.conditionType) {
         case BadgeConditionType.streak:
-          // Use longestStreak to ensure milestone is captured
+
           met = user.longestStreak >= badge.conditionValue;
           break;
         case BadgeConditionType.firstLogin:
-          // If the user exists and is logged in, they've met first login
+
           met = true;
           break;
         case BadgeConditionType.profileComplete:
@@ -78,14 +68,14 @@ class BadgeService {
           met = user.longestStreak >= badge.conditionValue;
           break;
         case BadgeConditionType.tasksCompleted:
-          // Use totalSessions instead of dummy points logic
+
           met = user.totalSessions >= badge.conditionValue;
           break;
         case BadgeConditionType.dietLog:
           met = user.contentDietCount >= badge.conditionValue;
           break;
         case BadgeConditionType.custom:
-          // Handle custom logic if needed
+
           break;
       }
 
@@ -111,8 +101,6 @@ class BadgeService {
 
     final unlockedBadge =
         badge.copyWith(isUnlocked: true, unlockedAt: DateTime.now());
-
-    // Add to celebration queue
     _celebrationQueue.add(unlockedBadge);
     _showNextCelebration();
   }
@@ -125,12 +113,9 @@ class BadgeService {
     _ref.read(lastUnlockedBadgeProvider.notifier).state = nextBadge;
   }
 
-  /// Called from the UI when the user dismisses the celebration
   void dismissCelebration() {
     _ref.read(lastUnlockedBadgeProvider.notifier).state = null;
     _isShowingCelebration = false;
-
-    // Show next one after a brief delay for smooth transition
     Future.delayed(const Duration(milliseconds: 500), () {
       _showNextCelebration();
     });

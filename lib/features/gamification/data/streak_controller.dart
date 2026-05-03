@@ -31,19 +31,13 @@ class StreakController extends StateNotifier<UserModel?> {
     if (_uid == null) return;
     final user = await _userRepo.getUser(_uid);
     state = user;
-
-    // Check for streak reset on load
     await _streakService.checkAndResetStreak(_uid);
-
-    // Refresh state after potential reset
     state = await _userRepo.getUser(_uid);
   }
 
   Future<void> completeDailyTask() async {
     if (_uid == null) return;
     await _streakService.completeDailyTask(_uid);
-
-    // Refresh state
     state = await _userRepo.getUser(_uid);
   }
 }

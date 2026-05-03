@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/admin_repository.dart';
@@ -20,17 +21,18 @@ class BadgeManagementView extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Achievement Badges',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary),
+              Text(
+                AppLocalizations.of(context).adminAchievementBadges,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
               ),
               ElevatedButton.icon(
                 onPressed: () => showBadgeDialog(context, ref),
                 icon: const Icon(LucideIcons.plus, size: 18),
-                label: const Text('New Badge'),
+                label: Text(AppLocalizations.of(context).adminNewBadge),
               ),
             ],
           ),
@@ -79,32 +81,32 @@ class BadgeManagementView extends ConsumerWidget {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: AppTheme.surface,
-          title: Text(isEditing ? 'Edit Badge' : 'New Badge'),
+          title: Text(isEditing ? AppLocalizations.of(context).adminEditBadge : AppLocalizations.of(context).adminNewBadge),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).adminBadgeTitle),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).adminBadgeDesc),
                   maxLines: 2,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: iconController,
-                  decoration: const InputDecoration(
-                      labelText: 'Icon Name (e.g., trophy, flame)'),
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).adminBadgeIconName),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BadgeConditionType>(
                   initialValue: selectedCondition,
                   decoration:
-                      const InputDecoration(labelText: 'Condition Type'),
+                      InputDecoration(labelText: AppLocalizations.of(context).adminBadgeConditionType),
                   dropdownColor: AppTheme.surface,
                   items: BadgeConditionType.values
                       .map((e) => DropdownMenuItem(
@@ -122,14 +124,14 @@ class BadgeManagementView extends ConsumerWidget {
                 TextField(
                   controller: conditionValueController,
                   decoration:
-                      const InputDecoration(labelText: 'Condition Value'),
+                      InputDecoration(labelText: AppLocalizations.of(context).adminBadgeConditionValue),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: unitLabelController,
-                  decoration: const InputDecoration(
-                      labelText: 'Unit Label (e.g., days, sessions)'),
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).adminBadgeUnitLabel),
                 ),
               ],
             ),
@@ -137,7 +139,7 @@ class BadgeManagementView extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).adminCancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -166,7 +168,7 @@ class BadgeManagementView extends ConsumerWidget {
                 }
                 Navigator.pop(context);
               },
-              child: Text(isEditing ? 'Save Changes' : 'Create Badge'),
+              child: Text(isEditing ? AppLocalizations.of(context).adminSaveChanges : AppLocalizations.of(context).adminNewBadge),
             ),
           ],
         ),
@@ -186,7 +188,7 @@ class _BadgeCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -194,7 +196,7 @@ class _BadgeCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withOpacity(0.1),
+              color: AppTheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(LucideIcons.award,

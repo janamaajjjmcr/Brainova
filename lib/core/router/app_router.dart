@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/welcome_back_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/auth/presentation/intro_slogan_screen.dart';
+import '../../features/auth/presentation/rive_intro_screen.dart';
 import '../../features/auth/presentation/brainova_start_screen.dart';
 import '../../features/auth/presentation/get_started_screen.dart';
-// import '../../features/auth/presentation/verify_email_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/mind_reset/presentation/mind_reset_list_screen.dart';
 import '../../features/mind_reset/presentation/activity_player_screen.dart';
@@ -23,20 +24,37 @@ import '../presentation/main_wrapper.dart';
 final router = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
-    // We can't easily check ref here since it's not a Consumer,
-    // but we can use the provider if we pass it or use a global-ish access.
-    // However, simplest is to let the screens handle it or use a redirect logic
-    // if the app has a central auth state.
     return null;
   },
   routes: [
-    // Permission check
     GoRoute(
       path: '/',
-      builder: (context, state) => const PermissionCheckerScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const RiveIntroScreen(),
+        transitionDuration: const Duration(milliseconds: 1000),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            child: child,
+          );
+        },
+      ),
     ),
-
-    // Auth routes
+    GoRoute(
+      path: '/check-permissions',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const PermissionCheckerScreen(),
+        transitionDuration: const Duration(milliseconds: 1000),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            child: child,
+          );
+        },
+      ),
+    ),
     GoRoute(
       path: '/login',
       builder: (context, state) => const WelcomeBackScreen(),
@@ -46,8 +64,18 @@ final router = GoRouter(
       builder: (context, state) => const WelcomeScreen(),
     ),
     GoRoute(
-      path: '/intro',
-      builder: (context, state) => const IntroSloganScreen(),
+      path: '/intro-slogan',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const IntroSloganScreen(),
+        transitionDuration: const Duration(milliseconds: 1000),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            child: child,
+          );
+        },
+      ),
     ),
     GoRoute(
       path: '/get-started',
@@ -57,14 +85,6 @@ final router = GoRouter(
       path: '/brainova-start',
       builder: (context, state) => const BrainovaStartScreen(),
     ),
-    /*
-    GoRoute(
-      path: '/verify-email',
-      builder: (context, state) => const VerifyEmailScreen(),
-    ),
-    */
-
-    // Main app with bottom nav
     ShellRoute(
       builder: (context, state, child) {
         return MainWrapper(child: child);
@@ -111,8 +131,6 @@ final router = GoRouter(
         ),
       ],
     ),
-
-    // Detail routes
     GoRoute(
       path: '/mind-reset/:id',
       name: 'mind-reset-player',

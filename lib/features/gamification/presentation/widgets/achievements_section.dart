@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:brainova/l10n/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/repositories/badge_repository.dart';
 import 'badge_card.dart';
@@ -9,6 +10,7 @@ class AchievementsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final achievementsAsync = ref.watch(badgesStreamProvider);
 
     return Column(
@@ -18,7 +20,7 @@ class AchievementsSection extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Achievements',
+              l10n.achievementsTitle,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             Row(
@@ -28,7 +30,7 @@ class AchievementsSection extends ConsumerWidget {
                     final unlockedCount =
                         badges.where((b) => b.isUnlocked).length;
                     return Text(
-                      '$unlockedCount / ${badges.length} Unlocked',
+                      l10n.achievementsUnlocked(unlockedCount, badges.length),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppTheme.primary,
@@ -49,7 +51,7 @@ class AchievementsSection extends ConsumerWidget {
           child: achievementsAsync.when(
             data: (badges) {
               if (badges.isEmpty) {
-                return const Center(child: Text('No badges available yet.'));
+                return Center(child: Text(l10n.achievementsNoBadges));
               }
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -64,7 +66,7 @@ class AchievementsSection extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            error: (e, _) => Center(child: Text(l10n.commonError(e.toString()))),
           ),
         ),
       ],
