@@ -45,6 +45,12 @@ Brainova is not just a productivity app — it's a cognitive wellness system des
 * Monitor online behavior patterns
 * Visual insights and usage analytics
 * Stay aware of your "content diet"
+
+### 💡 Privacy-First Approach  
+* Log Content feature enables manual tracking instead of automatic monitoring  
+* Gives users full control over what they log and track  
+* Offers meaningful insights without accessing continuous device data  
+* Built with a strong focus on user privacy and comfort  
   
 <img width="235" height="428" alt="image" src="https://github.com/user-attachments/assets/b82ea4a4-1a02-4045-83eb-bf430bded0d5" />
 
