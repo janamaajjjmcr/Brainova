@@ -1,4 +1,7 @@
-## 🧠 Brainova — Digital Wellness & Focus App
+<h2>
+  🧠 Brainova — Digital Wellness & Focus App
+  <img src="https://github.com/user-attachments/assets/452098af-9a95-45ad-a96a-b81dd22ecbc2" width="30" style="vertical-align: middle; margin-left: 8px;" />
+</h2>
 
 Brainova is a premium Flutter application built to help users take back control of their digital habits, improve mental clarity, and build a healthier relationship with content consumption.
 
