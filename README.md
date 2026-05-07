@@ -93,7 +93,7 @@ Supports a global audience with full localization:
 
 ---
 
-## 🧱 Tech Stack
+### 🧱 Tech Stack
 
 * **Framework:** [Flutter](https://flutter.dev/) (SDK >= 3.2.0)
 * **State Management:** [Riverpod](https://riverpod.dev/)
@@ -103,69 +103,76 @@ Supports a global audience with full localization:
 * **Icons:** [Lucide](https://lucide.dev/) & Cupertino Icons
 
 ---
+### 📱 Android APK (Test Version)
 
-## 📁 Project Structure
+A ready-to-install Android APK is available for testing the application.
 
-```text
-lib/
-├── core/               # Core configuration, themes, and shared services
-│   ├── localization/   # Locale providers and setup
-│   ├── router/         # GoRouter navigation configuration
-│   ├── service/        # Notification and background services
-│   └── theme/          # App-wide design system (Dark/Light modes)
-├── features/           # Feature-based modular architecture
-│   ├── admin/          # Admin dashboard and controls
-│   ├── auth/           # Firebase Authentication flow
-│   ├── content_diet/   # Content tracking logic and UI
-│   ├── gamification/   # Badges, streaks, and user rewards
-│   ├── mind_reset/     # Mindfulness activities and audio player
-│   ├── rewire/         # Cognitive habit tools
-│   └── tracking/       # Usage monitoring and stats
-├── l10n/               # Localization ARB files
-└── main.dart           # Application entry point
+**🔽 Download**
+
+Go to the **Releases** section of this repository and download:
+
+```
+app-release.apk
 ```
 
 ---
 
-## 🛠️ Getting Started
+**⚙️ Installation Steps**
 
-### Prerequisites
-- Flutter SDK installed on your machine.
-- Firebase project set up (add your `google-services.json` and `GoogleService-Info.plist`).
-
-### Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/janamaajjjmcr/Brainova.git
-   cd Brainova
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app:**
-   ```bash
-   flutter run
-   ```
+1. Download the APK file to your Android device
+2. Open the file
+3. Allow installation from unknown sources (if prompted)
+4. Install the app
+5. Launch and enjoy 🎉
 
 ---
 
-## 🎨 Design Philosophy
+**⚠️ Important Notes**
 
-Brainova follows a **Modern Dark Aesthetic** with glassmorphism elements and smooth transitions. The UI is designed to be calming, intuitive, and premium, ensuring that the tool itself doesn't contribute to digital fatigue.
-
-* Deep Slates, Vibrant Primaries, and soothing Gradients.
-* Minimal cognitive load.
-* Built to reduce stress, not increase it.
+- This version is available for **Android devices only**
+- ❌ iOS (iPhone) is **not supported yet**
+- This APK is a **temporary testing version**
+- Some features may still be under development
 
 ---
 
-## 📄 License
+### **🚀 Future Plans**
 
-This project is proprietary.
-For usage or collaboration inquiries, please contact the repository owner.
+The application will be officially published on:
+
+- Google Play Store
+- Apple App Store
+
+in future releases, providing a smoother installation experience and full platform support.
+
+---
+
+### **🎨 Design Philosophy**
+
+Brainova follows a calm, premium, distraction-free design:
+
+- Dark modern UI
+- Smooth animations
+- Minimal cognitive load
+- Built to reduce stress, not increase it
+
+---
+
+### **🔒 License**
+
+This project is proprietary. For usage or collaboration inquiries, please contact the repository owner.
+
+---
+
+### **🌱 Vision**
+
+Brainova aims to become a leading platform for:
+
+- Digital detox
+- Mental clarity
+- Habit transformation
+
+Helping users build a healthier digital life in a world full of distractions.
 
 ---
 
