@@ -57,7 +57,10 @@ class UsageStatsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     private fun queryAndAggregateUsageStats(ctx: Context, startTime: Long, endTime: Long): List<Map<String, Any>> {
-        val usageStatsManager = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+        if (usageStatsManager == null) {
+            return emptyList()
+        }
 
         // Query starting from 24 hours before startTime to catch apps already 
         // in the foreground at the boundary (midnight).

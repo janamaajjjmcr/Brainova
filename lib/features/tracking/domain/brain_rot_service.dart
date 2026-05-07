@@ -30,7 +30,7 @@ class BrainRotService {
   static const double junkweight = 2.2;
   static const double learningWeight = -0.5;
 
-  static const double normalizationConstant = 1200.0;
+  static const double normalizationConstant = 850.0;
   Future<int> calculateRollingScore(String uid) async {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);

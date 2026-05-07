@@ -64,6 +64,7 @@ class NotificationService {
     try {
       const intent = AndroidIntent(
         action: 'android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+        data: 'package:com.example.brainova',
       );
       await intent.launch();
     } catch (e) {
