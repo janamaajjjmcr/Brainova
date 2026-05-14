@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:brainova/l10n/app_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../theme/app_theme.dart';
 import '../../features/auth/data/auth_providers.dart';
 
@@ -20,7 +21,7 @@ class MainWrapper extends ConsumerWidget {
       return _RestrictedScreen();
     }
     final bool isAdmin =
-        (userProfile?.email ?? '').trim().toLowerCase() == 'erer40464@gmail.com';
+        (userProfile?.email ?? '').trim().toLowerCase() == (dotenv.env['ADMIN_EMAIL'] ?? '').trim().toLowerCase();
     final int itemCount = isAdmin ? 6 : 5;
 
     final int selectedIndex = _calculateSelectedIndex(context, isAdmin);

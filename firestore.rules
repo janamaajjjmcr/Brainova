@@ -13,8 +13,8 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // إعطاء صلاحيات الأدمن لهذا الإيميل تحديداً
-      return isSignedIn() && (request.auth.token.email.lower().trim() == 'erer40464@gmail.com');
+      // التحقق من صلاحيات الأدمن عبر Custom Claims (أكثر أماناً)
+      return isSignedIn() && request.auth.token.admin == true;
     }
 
     // Rules for User Profiles and their subcollections
