@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -30,8 +31,8 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDRy7V1svpKFLeV4j2EGxe64BT4lAVbRl8',
+  static FirebaseOptions get web => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
     appId: '1:818592913245:web:c2a998149a9a4d06acfab4',
     messagingSenderId: '818592913245',
     projectId: 'cs-brainova',
@@ -40,16 +41,16 @@ class DefaultFirebaseOptions {
     measurementId: 'G-KK4Z8PEM0M',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC-T4I43cPAiJrtGYvym6JknwduSUhwXEc',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
     appId: '1:818592913245:android:117d917a9f8b370dacfab4',
     messagingSenderId: '818592913245',
     projectId: 'cs-brainova',
     storageBucket: 'cs-brainova.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCmhOA4fUzjMcbxF7LBRxtbdMmc8ROB5ME',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
     appId: '1:818592913245:ios:6e68050fbc6d6a72acfab4',
     messagingSenderId: '818592913245',
     projectId: 'cs-brainova',
@@ -59,8 +60,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.brainova.brainova',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCmhOA4fUzjMcbxF7LBRxtbdMmc8ROB5ME',
+  static FirebaseOptions get macos => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
     appId: '1:818592913245:ios:6e68050fbc6d6a72acfab4',
     messagingSenderId: '818592913245',
     projectId: 'cs-brainova',
@@ -70,8 +71,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.brainova.brainova',
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDRy7V1svpKFLeV4j2EGxe64BT4lAVbRl8',
+  static FirebaseOptions get windows => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
     appId: '1:818592913245:web:c2a998149a9a4d06acfab4',
     messagingSenderId: '818592913245',
     projectId: 'cs-brainova',

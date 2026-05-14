@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
   return AdminRepository(FirebaseFirestore.instance);
@@ -10,7 +11,8 @@ class AdminRepository {
   AdminRepository(this._firestore);
 
   bool isAdminUser(String? email) {
-    return email?.trim().toLowerCase() == 'erer40464@gmail.com';
+    final adminEmail = dotenv.env['ADMIN_EMAIL'];
+    return email?.trim().toLowerCase() == adminEmail?.trim().toLowerCase();
   }
 
   Stream<Map<String, dynamic>> watchAnalyticsSummary() {

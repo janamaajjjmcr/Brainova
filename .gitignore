@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets and environment variables
+.env
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
